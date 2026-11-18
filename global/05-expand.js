@@ -157,7 +157,14 @@
         return out;
     }
 
-    var api = { expandWord: expandWord, expandAll: expandAll };
+    // glob-এর লেখা (যেমন *.txt) থেকে RegExp, find -name-এর জন্য। পুরো লেখার সাথে মেলে।
+    function patternToRegex(pattern, ignoreCase) {
+        var chars = pattern.split('').map(function (c) { return { c: c, magic: c === '*' || c === '?' || c === '[' }; });
+        var base = componentRegex(chars);
+        return ignoreCase ? new RegExp(base.source, 'i') : base;
+    }
+
+    var api = { expandWord: expandWord, expandAll: expandAll, patternToRegex: patternToRegex };
     if (isNode) module.exports = api;
     else root.LinuxExpand = api;
 })(typeof self !== 'undefined' ? self : this);

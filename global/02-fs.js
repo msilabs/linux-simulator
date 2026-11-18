@@ -100,17 +100,30 @@
         return walk(fs, 0);
     }
 
-    function sortKey(name) {
-        return name.toLowerCase().replace(/[^a-z0-9\u0080-￿]/g, '');
+    // Ubuntu-র (glibc ২.২৮-এর পরের) en_US ক্রমের মতো: বড়-ছোট হাতের ভেদ প্রথমে ধরা হয় না,
+    // চিহ্ন (. - _ ইত্যাদি) আগে, তারপর অঙ্ক, তারপর অক্ষর। সব এক হলে ছোট হাতের অক্ষর আগে।
+    function weight(c) {
+        if (/[0-9]/.test(c)) return 1;
+        if (/[a-z\u0080-\uffff]/.test(c)) return 2;
+        return 0;
     }
 
-    // Ubuntu-র সাধারণ locale-এর মতো: বড়-ছোট হাতের ভেদ আর শুরুর . না ধরে সাজানো
     function compareNames(a, b) {
-        var ka = sortKey(a);
-        var kb = sortKey(b);
-        if (ka < kb) return -1;
-        if (ka > kb) return 1;
-        return a < b ? -1 : a > b ? 1 : 0;
+        var la = a.toLowerCase();
+        var lb = b.toLowerCase();
+        var n = Math.min(la.length, lb.length);
+        for (var i = 0; i < n; i++) {
+            var ca = la.charAt(i);
+            var cb = lb.charAt(i);
+            if (ca === cb) continue;
+            var wa = weight(ca);
+            var wb = weight(cb);
+            if (wa !== wb) return wa - wb;
+            return ca < cb ? -1 : 1;
+        }
+        if (la.length !== lb.length) return la.length - lb.length;
+        if (a === b) return 0;
+        return a > b ? -1 : 1;
     }
 
     function names(node) {
@@ -148,7 +161,7 @@
     var api = {
         USERS: USERS, has: has, meta: meta, file: file, dir: dir, link: link,
         lookup: lookup, can: can, update: update, names: names, compareNames: compareNames,
-        modeString: modeString, sizeOf: sizeOf
+        modeString: modeString, sizeOf: sizeOf, byteLength: byteLength
     };
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
     else root.LinuxFs = api;

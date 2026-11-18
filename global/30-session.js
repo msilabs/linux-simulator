@@ -66,7 +66,7 @@
         var lines = s.lines.concat([input]);
         if (result.stdout) lines.push(line('output', trimEnd(result.stdout)));
         if (result.stderr) lines.push(line('error', trimEnd(result.stderr)));
-        if (result.explain) lines.push(line(result.code === 0 ? 'explain' : 'explain-error', result.explain));
+        if (result.explain) lines.push(line(result.explainError ? 'explain-error' : 'explain', result.explain));
 
         var step = Missions.nextStep(s.step, { prev: s.state, next: result.state, command: command, ok: result.code === 0, stdout: result.stdout });
         var before = Missions.missionAt(s.step).index;

@@ -17,7 +17,8 @@
         var n = seed;
         return function (max) {
             n = (n * 1103515245 + 12345) % 2147483648;
-            return n % max;
+            // নিচের bit-গুলো বারবার একই ঘোরে, তাই উপরের bit নেওয়া হয়
+            return (n >>> 12) % max;
         };
     }
 

@@ -68,11 +68,11 @@ test('fs: odd names like __proto__ and constructor are plain names', () => {
     assert.equal(Fs.lookup(fs, dev(), '/tmp/toString').error, 'ENOENT');
 });
 
-test('fs: names sort like Ubuntu (case and leading dot ignored)', () => {
-    const names = ['b.txt', 'A.txt', '.bashrc', 'a2', 'Zed', 'beta'];
+test('fs: names sort like Ubuntu (case ignored first, punctuation before digits before letters)', () => {
+    const names = ['b.txt', 'A.txt', '.bashrc', 'a2', 'Zed', 'beta', 'a'];
     const sorted = names.slice().sort(Fs.compareNames);
-    // '.' বাদ দিয়ে তুলনা: a2 < atxt, bashrc < beta < btxt
-    assert.deepEqual(sorted, ['a2', 'A.txt', '.bashrc', 'beta', 'b.txt', 'Zed']);
+    assert.deepEqual(sorted, ['.bashrc', 'a', 'A.txt', 'a2', 'b.txt', 'beta', 'Zed']);
+    assert.ok(Fs.compareNames('a', 'A') < 0);
 });
 
 test('fs: modeString and sizeOf', () => {
