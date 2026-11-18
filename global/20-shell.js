@@ -176,7 +176,7 @@
         } else {
             stage.name = args[0];
             stage.args = args.slice(1);
-            var tty = isLast && out.kind === 'term';
+            var tty = isLast && out.kind === 'term' && env.tty !== false;
             if (args[0].indexOf('/') !== -1) {
                 result = runPath(state, args[0], args.slice(1), input, tty, env);
             } else if (Registry.commands[args[0]]) {
@@ -315,12 +315,12 @@
         return { state: state, stdout: '', stderr: '', code: 0, explain: '' };
     }
 
-    // opts: { history: [...], status: সর্বশেষ exit code }
+    // opts: { history: [...], status: সর্বশেষ exit code, tty: false হলে আউটপুট pipe-এর মতো (ls প্রতি লাইনে একটা) }
     function run(state, line, opts) {
         opts = opts || {};
         if (!line.trim()) return empty(state);
 
-        var env = { history: opts.history || [], status: opts.status || 0, depth: 0 };
+        var env = { history: opts.history || [], status: opts.status || 0, depth: 0, tty: opts.tty };
         var result = execLine(state, line, env);
         var next = result.state;
         if (next.fs !== state.fs) next = Object.assign({}, next, { clock: next.clock + 1 });

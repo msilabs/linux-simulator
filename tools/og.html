@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@700;800&family=Noto+Sans+Bengali:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+    * { margin: 0; box-sizing: border-box; }
+    html, body { width: 1200px; height: 630px; overflow: hidden; }
+    body { position: relative; display: flex; align-items: center; gap: 56px; padding: 0 84px; isolation: isolate; color: #E6EDF7;
+        background: linear-gradient(140deg, #0A1020 0%, #14213D 100%); font-family: 'Noto Sans Bengali', sans-serif; }
+    body::before { content: ""; position: absolute; inset: 0; z-index: -1;
+        background-image: linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+        background-size: 40px 40px; mask-image: radial-gradient(circle at 70% 50%, #000, transparent 75%); -webkit-mask-image: radial-gradient(circle at 70% 50%, #000, transparent 75%); }
+    .glow { position: absolute; right: 40px; top: 120px; width: 460px; height: 460px; border-radius: 50%; background: #1ED6A8; filter: blur(110px); opacity: .28; z-index: -1; }
+    .copy { flex: 1; display: grid; gap: 22px; }
+    .brand { display: flex; align-items: center; gap: 14px; font: 700 26px 'JetBrains Mono', monospace; color: #1ED6A8; }
+    .brand i { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: #0A1020; border: 2px solid #1ED6A8; font-style: normal; }
+    h1 { font-family: 'Baloo Da 2', 'Noto Sans Bengali', sans-serif; font-size: 92px; line-height: 1.05; font-weight: 800; letter-spacing: -.02em; }
+    h1 span { background: linear-gradient(100deg, #1ED6A8, #FFB020); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    p { font-size: 34px; line-height: 1.4; font-weight: 500; color: rgba(230,237,247,.82); max-width: 520px; }
+    .term { flex: none; width: 470px; border-radius: 20px; background: #070D1C; border: 1px solid rgba(255,255,255,.12); box-shadow: 0 30px 80px rgba(0,0,0,.5); overflow: hidden; }
+    .bar { display: flex; gap: 8px; padding: 14px 18px; background: #0E182D; }
+    .bar b { width: 13px; height: 13px; border-radius: 50%; background: #ff7a5c; }
+    .bar b:nth-child(2) { background: #FFB020; } .bar b:nth-child(3) { background: #1ED6A8; }
+    .body { padding: 22px 24px 26px; font: 500 19px/1.7 'JetBrains Mono', monospace; color: #C8D2E6; white-space: pre; }
+    .p { color: #1ED6A8; font-weight: 700; } .d { color: #7c9cff; } .e { color: #ffd58a; }
+    .note { margin-top: 12px; padding: 10px 14px; border-radius: 10px; background: rgba(124,156,255,.14); font: 500 20px/1.5 'Noto Sans Bengali', sans-serif; white-space: normal; }
+</style>
+</head>
+<body>
+    <span class="glow"></span>
+    <div class="copy">
+        <div class="brand"><i>&gt;_</i><span>msilabs</span></div>
+        <h1>Linux, <span>নিজের হাতে</span> শিখুন</h1>
+        <p>ব্রাউজারে নকল terminal, প্রতিটা command-এর বাংলা ব্যাখ্যা</p>
+    </div>
+    <div class="term">
+        <div class="bar"><b></b><b></b><b></b></div>
+        <div class="body"><span class="p">dev@laptop:~$</span> ls -l
+<span class="d">drwxr-xr-x</span> dev downloads
+-rw-r--r-- dev notes.txt
+<span class="p">dev@laptop:~$</span> grep ERROR log | wc -l
+<span class="e">8</span>
+<div class="note">pipe এক command-এর আউটপুটকে পরের command-এর ইনপুট বানায়।</div></div>
+    </div>
+</body>
+</html>

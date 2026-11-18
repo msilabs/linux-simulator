@@ -11,7 +11,13 @@
     <meta property="og:title" content="{{ data.site.name }} · {{ data.site.tagline }}">
     <meta property="og:description" content="{{ data.site.description }}">
     <meta property="og:url" content="{{ data.site.url }}/{{ data.site.repo.split('/').pop() }}{{ route.path }}">
-    <meta name="twitter:card" content="summary">
+    <meta property="og:image" content="{{ data.site.url }}/{{ data.site.repo.split('/').pop() }}/og.jpg">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Linux Simulator: ব্রাউজারে নকল terminal, প্রতিটা command-এর বাংলা ব্যাখ্যা">
+    <meta name="twitter:card" content="summary_large_image">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Linux Simulator","url":"https://msilabs.github.io/linux-simulator/","description":"ব্রাউজারে নকল Linux terminal। বাংলা ব্যাখ্যা, ১১টা mission আর Undo সহ।","applicationCategory":"EducationalApplication","operatingSystem":"Any","inLanguage":"bn","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"BDT"},"author":{"@type":"Organization","name":"msilabs","url":"https://msilabs.github.io/"}}</script>
     <script>try { var t = localStorage.getItem('msilabs-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -27,6 +27,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Locale for the real-bash comparison
+        run: sudo locale-gen en_US.UTF-8
       - run: npm test
       # fork করলে রিপোর নাম নিজে থেকেই base হয়; <user>.github.io রিপোতে base হয় /
       - name: Build

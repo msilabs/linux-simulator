@@ -13,5 +13,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Locale for the real-bash comparison
+        run: sudo locale-gen en_US.UTF-8
       - run: npm test
       - run: node alo build
