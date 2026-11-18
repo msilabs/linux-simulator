@@ -6,8 +6,10 @@
 
     var USERS = {
         dev: { name: 'dev', group: 'dev', home: '/home/dev' },
-        root: { name: 'root', group: 'root', home: '/root' }
+        root: { name: 'root', group: 'root', home: '/root' },
+        'www-data': { name: 'www-data', group: 'www-data', home: '/var/www' }
     };
+    var GROUPS = ['dev', 'root', 'adm', 'sudo', 'www-data'];
 
     var hasOwn = Object.prototype.hasOwnProperty;
 
@@ -38,17 +40,33 @@
         return copy;
     }
 
+    var MAX_LINKS = 8;
+
+    // symlink-এর target পুরো path-এ: relative হলে link যে ফোল্ডারে আছে সেখান থেকে
+    function linkTarget(node, linkPath) {
+        return Path.resolve(Path.dirname(linkPath), node.target, '/');
+    }
+
     // path-এর শেষ node-টা, আর কোথাও আটকালে error। ফোল্ডার পেরোতে `x` অধিকার লাগে।
-    // result: { node } অথবা { error: 'ENOENT' | 'ENOTDIR' | 'EACCES', path }
-    function lookup(fs, user, abs, followLinks) {
+    // মাঝের symlink সবসময় অনুসরণ হয়; শেষেরটা অনুসরণ হয় না যদি followFinal === false (ls -l, rm-এর মতো)।
+    // result: { node, path } অথবা { error: 'ENOENT' | 'ENOTDIR' | 'EACCES' | 'ELOOP', path }
+    function lookup(fs, user, abs, followFinal, depth) {
+        depth = depth || 0;
+        if (depth > MAX_LINKS) return { error: 'ELOOP', path: abs };
         var parts = Path.split(abs);
         var node = fs;
         var walked = '';
+
+        function follow(linkNode) {
+            return lookup(fs, user, linkTarget(linkNode, walked || '/'), true, depth + 1);
+        }
+
         for (var i = 0; i < parts.length; i++) {
-            if (node.kind === 'link' && followLinks !== false) {
-                var target = lookup(fs, user, Path.resolve('/', node.target, '/'), true);
-                if (target.error) return target;
-                node = target.node;
+            if (node.kind === 'link') {
+                var through = follow(node);
+                if (through.error) return through;
+                node = through.node;
+                walked = through.path === '/' ? '' : through.path;
             }
             if (node.kind !== 'dir') return { error: 'ENOTDIR', path: walked || '/' };
             if (!can(node, user, 'x')) return { error: 'EACCES', path: walked || '/' };
@@ -56,12 +74,12 @@
             if (!has(node.children, parts[i])) return { error: 'ENOENT', path: walked };
             node = node.children[parts[i]];
         }
-        if (node.kind === 'link' && followLinks !== false) {
-            var end = lookup(fs, user, Path.resolve('/', node.target, '/'), true);
+        if (node.kind === 'link' && followFinal !== false) {
+            var end = follow(node);
             if (end.error) return end;
-            node = end.node;
+            return { node: end.node, path: end.path };
         }
-        return { node: node };
+        return { node: node, path: walked || '/' };
     }
 
     // user এই node-এ r, w বা x করতে পারে কিনা (owner, group, other ক্রমে দেখা হয়)
@@ -159,7 +177,7 @@
     }
 
     var api = {
-        USERS: USERS, has: has, meta: meta, file: file, dir: dir, link: link,
+        USERS: USERS, GROUPS: GROUPS, has: has, meta: meta, file: file, dir: dir, link: link,
         lookup: lookup, can: can, update: update, names: names, compareNames: compareNames,
         modeString: modeString, sizeOf: sizeOf, byteLength: byteLength
     };

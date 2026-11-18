@@ -34,6 +34,8 @@
             history: [],
             step: 0,
             status: 0,
+            running: null,
+            editing: null,
             nextId: 2
         };
     }
@@ -49,6 +51,7 @@
     }
 
     function applyCommand(s, command) {
+        if (s.running || s.editing) return s;
         var nextId = s.nextId;
         function line(kind, text, prompt) {
             return { id: nextId++, kind: kind, text: text, prompt: prompt };
@@ -86,8 +89,43 @@
             history: history,
             step: step,
             status: result.code,
+            running: result.waiting ? { command: command, name: result.waiting.name } : null,
+            editing: result.edit || null,
             nextId: nextId
         }));
+    }
+
+    // চলতে থাকা program (tail -f, sleep) Ctrl+C দিয়ে থামানো
+    function stopRunning(s) {
+        if (!s.running) return s;
+        var id = s.nextId;
+        var lines = s.lines.concat([
+            { id: id, kind: 'output', text: '^C' },
+            { id: id + 1, kind: 'explain', text: Text.stopped }
+        ]);
+        return Object.assign({}, s, { running: null, status: 130, lines: lines.slice(-MAX_LINES), nextId: id + 2 });
+    }
+
+    // editor থেকে সেভ। ভুল হলে editor খোলা থাকে আর error ফেরত আসে।
+    function saveFile(s, path, content, shown) {
+        if (!s.editing) return { session: s };
+        var written = Shell.writeFile(s.state, path, content);
+        if (written.error) return { session: s, error: written.error.replace(/^bash: /, '').replace(/\n$/, '') };
+        var label = 'nano ' + (shown || path);
+        var id = s.nextId;
+        var session = Object.assign({}, s, {
+            state: written.state,
+            log: s.log.concat([{ type: 'write', path: path, content: content, label: label }]),
+            past: s.past.concat([{ state: s.state, step: s.step, command: label }]),
+            lines: s.lines.concat([{ id: id, kind: 'welcome', text: Text.fileSaved(path) }]).slice(-MAX_LINES),
+            editing: null,
+            nextId: id + 1
+        });
+        return { session: compact(session) };
+    }
+
+    function cancelEdit(s) {
+        return s.editing ? Object.assign({}, s, { editing: null }) : s;
     }
 
     // পরপর দুইবার Tab: লেখা লাইনটা আর মিলগুলোর তালিকা দেখায়। কোনো command চলে না।
@@ -112,6 +150,8 @@
             step: last.step,
             log: s.log.slice(0, -1),
             past: s.past.slice(0, -1),
+            running: null,
+            editing: null,
             lines: s.lines.concat([note]).slice(-MAX_LINES),
             nextId: s.nextId + 1
         });
@@ -125,6 +165,14 @@
         var kept = [];
         var past = [];
         log.forEach(function (command) {
+            if (typeof command === 'object') {
+                var written = Shell.writeFile(state, command.path, command.content);
+                if (written.error) return;
+                past.push({ state: state, step: step, command: command.label });
+                kept.push(command);
+                state = written.state;
+                return;
+            }
             var result = Shell.run(state, command, { history: [], status: status });
             status = result.code;
             if (!stateChanged(state, result.state)) return;
@@ -143,6 +191,16 @@
         });
     }
 
+    function isLogEntry(x) {
+        if (typeof x === 'string') return true;
+        return !!x && typeof x === 'object' && x.type === 'write' && typeof x.path === 'string' && x.path.charAt(0) === '/' &&
+            typeof x.content === 'string' && typeof x.label === 'string';
+    }
+
+    function isValidLog(x) {
+        return Array.isArray(x) && x.every(isLogEntry);
+    }
+
     function isStringArray(x) {
         return Array.isArray(x) && x.every(function (v) { return typeof v === 'string'; });
     }
@@ -150,7 +208,7 @@
     var api = {
         MAX_LOG: MAX_LOG, KEEP_LOG: KEEP_LOG, MAX_LINES: MAX_LINES, MAX_HISTORY: MAX_HISTORY,
         stateChanged: stateChanged, freshSession: freshSession, compact: compact, applyCommand: applyCommand,
-        showCompletions: showCompletions, interrupt: interrupt, undo: undo, replay: replay, isValidLines: isValidLines, isStringArray: isStringArray
+        showCompletions: showCompletions, interrupt: interrupt, stopRunning: stopRunning, saveFile: saveFile, cancelEdit: cancelEdit, undo: undo, replay: replay, isValidLines: isValidLines, isValidLog: isValidLog, isStringArray: isStringArray
     };
     if (isNode) module.exports = api;
     else root.LinuxSession = api;

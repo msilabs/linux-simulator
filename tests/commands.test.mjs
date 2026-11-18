@@ -66,7 +66,7 @@ test('mkdir: -p, existing, missing parent, verbose', () => {
 test('touch creates an empty file and refreshes an existing one', () => {
     const r = runAll(['touch a.txt', 'ls -l a.txt', 'touch notes.txt', 'touch /etc/x']);
     assert.equal(read(r.state, '/home/dev/a.txt'), '');
-    assert.match(r.outputs[1].stdout, /^total 0\n-rw-r--r-- 1 dev dev 0 /);
+    assert.match(r.outputs[1].stdout, /^-rw-r--r-- 1 dev dev 0 /);
     assert.equal(read(r.state, '/home/dev/notes.txt').startsWith('Linux'), true);
     assert.equal(r.outputs[3].stderr, "touch: cannot touch '/etc/x': Permission denied\n");
 });

@@ -19,6 +19,13 @@
         ESAME: 'একই ফাইলকে নিজের ওপরেই কপি বা সরানো যায় না।',
         ESELF: 'ফোল্ডারকে তার নিজের ভেতরে কপি বা সরানো যায় না। এতে শেষ হতো না।',
         EDOT: '`.` আর `..` মোছা যায় না, এরা বর্তমান আর উপরের ফোল্ডারের নাম।',
+        EMODE: 'mode লেখা ঠিক নয়। সংখ্যা (যেমন `755`) অথবা `u+x`-এর মতো লিখুন: কার (u মালিক, g দল, o বাকি সবাই, a সবাই), তারপর `+` (যোগ), `-` (বাদ) বা `=` (ঠিক করা), তারপর `r`, `w`, `x`।',
+        EUSER: 'এই নামে user বা group নেই। এখানে আছে user `dev`, `root`, `www-data` আর group `dev`, `root`, `adm`, `sudo`, `www-data`।',
+        EPERM: 'এই কাজের অনুমতি নেই। অধিকার বদলাতে পারে শুধু ফাইলের মালিক বা root, আর মালিক বদলাতে পারে শুধু root। দরকার হলে `sudo` দিয়ে চালান।',
+        ESRCH: 'এই নম্বরের কোনো process চলছে না। `ps aux` দিয়ে সঠিক PID দেখুন।',
+        EPID: 'PID হলো process-এর নম্বর, তাই সংখ্যা দিতে হয়। `ps aux` দিয়ে নম্বর দেখুন।',
+        ESIGNAL: 'signal-এর নাম ঠিক নয়। সাধারণত লাগে `-15` (ভদ্রভাবে বন্ধ করতে বলা) আর `-9` (জোর করে মারা)।',
+        ELOOP: 'link গুলো একে অপরকেই দেখাচ্ছে, কোনো আসল ফাইলে পৌঁছায় না। `ls -l` দিয়ে link-গুলো দেখে ঠিক করুন।',
         EFALSE: '`false` সবসময় ব্যর্থ হয়, শুধু `||` বা `$?`-এর পরীক্ষার জন্য।',
         ENOMATCH: 'কোনো লাইন মেলেনি, তাই আউটপুট খালি। এটা ভুল নয়, `grep` এভাবেই জানায় যে কিছু পায়নি। pattern-এর বানান আর বড়-ছোট হাতের অক্ষর দেখে নিন, দরকারে `-i` দিন।',
         EREGEX: 'pattern-টা সঠিক regular expression নয়। `[` খুলে বন্ধ না করলে এই ভুল হয়।',
@@ -27,7 +34,7 @@
         EALIAS: 'এই নামে কোনো alias নেই, অথবা alias-এর নামটা ঠিক নয়।',
         EDEPTH: 'script নিজেকেই বারবার চালাচ্ছে, তাই থামানো হয়েছে।',
         ENOMAN: 'এই command-এর কোনো বাংলা manual নেই। `help` দিয়ে command-এর তালিকা দেখুন।',
-        EPROTECT: 'সুরক্ষার জন্য এই simulator কাজটা করতে দেয়নি। আসল Linux-এ এভাবে `rm -rf` চালালে পুরো ফোল্ডার, এমনকি পুরো system মুছে যেত, আর ফেরত আনার উপায় থাকত না।'
+        EPROTECT: 'সুরক্ষার জন্য এই simulator কাজটা করতে দেয়নি। আসল Linux-এ এভাবে চালালে পুরো system-এর ফাইল মুছে বা নষ্ট হয়ে যেত, আর ফেরত আনার উপায় থাকত না। root হয়ে এমন ভুল করলে কেউ আটকায় না।'
     };
 
     var BY_COMMAND_ERRNO = {
@@ -50,6 +57,56 @@
             if (a.charAt(0) === '-' && a.charAt(1) !== '-' && a.length > 1) flags += a.slice(1);
         });
         return flags;
+    }
+
+    var DIGIT_TEXT = { 7: 'rwx (পড়া, লেখা, চালানো)', 6: 'rw- (পড়া, লেখা)', 5: 'r-x (পড়া, চালানো)', 4: 'r-- (শুধু পড়া)', 3: '-wx', 2: '-w- (শুধু লেখা)', 1: '--x (শুধু চালানো)', 0: '--- (কিছুই না)' };
+
+    function permWords(letters) {
+        var parts = [];
+        if (letters.indexOf('r') !== -1) parts.push('পড়ার (r)');
+        if (letters.indexOf('w') !== -1) parts.push('লেখার (w)');
+        if (letters.indexOf('x') !== -1 || letters.indexOf('X') !== -1) parts.push('চালানোর (x)');
+        return parts.join(', ');
+    }
+
+    function whoWords(who) {
+        if (!who || who.indexOf('a') !== -1) return 'সবাইকে';
+        var names = [];
+        if (who.indexOf('u') !== -1) names.push('মালিককে');
+        if (who.indexOf('g') !== -1) names.push('দলকে');
+        if (who.indexOf('o') !== -1) names.push('বাকি সবাইকে');
+        return names.join(' আর ');
+    }
+
+    // এই mode কি চালানোর (x) অধিকার যোগ করে?
+    function addsExecute(mode) {
+        if (/^[0-7]{1,4}$/.test(mode)) return /[1357]/.test(mode.slice(-3));
+        return mode.split(',').some(function (clause) {
+            var m = /^([ugoa]*)([-+=])([rwxX]*)$/.exec(clause);
+            return !!m && m[2] !== '-' && /[xX]/.test(m[3]);
+        });
+    }
+
+    function chmodText(mode) {
+        var parts;
+        var risky = false;
+        if (/^[0-7]{1,4}$/.test(mode)) {
+            var digits = mode.slice(-3);
+            while (digits.length < 3) digits = '0' + digits;
+            parts = code(mode) + '-এর তিনটা অঙ্ক যথাক্রমে মালিক, দল আর বাকি সবার অধিকার: ' +
+                [0, 1, 2].map(function (k) { return H.bn(digits.charAt(k)) + ' = ' + DIGIT_TEXT[digits.charAt(k)]; }).join(', ') + '।';
+            risky = (parseInt(digits.charAt(2), 10) & 2) !== 0;
+        } else {
+            parts = mode.split(',').map(function (clause) {
+                var m = /^([ugoa]*)([-+=])([rwxX]*)$/.exec(clause);
+                if (!m) return '';
+                var action = m[2] === '+' ? 'যোগ করা হয়েছে' : m[2] === '-' ? 'বাদ দেওয়া হয়েছে' : 'ঠিক করে দেওয়া হয়েছে';
+                if ((!m[1] || /[oa]/.test(m[1])) && m[2] !== '-' && m[3].indexOf('w') !== -1) risky = true;
+                return code(clause) + ' মানে ' + whoWords(m[1]) + ' ' + permWords(m[3]) + ' অধিকার ' + action + '।';
+            }).join(' ');
+        }
+        var warn = risky ? ' সাবধান: বাকি সবাইকে লেখার অধিকার দেওয়া নিরাপদ নয়, যে কেউ ফাইল বদলে ফেলতে পারে। সাধারণত ' + code('755') + ' (ফোল্ডার, script) বা ' + code('644') + ' (সাধারণ ফাইল) যথেষ্ট।' : '';
+        return parts + warn;
     }
 
     var BY_NAME = {
@@ -111,7 +168,10 @@
             return code('rm') + ' ফাইল মোছে। Recycle Bin নেই, তাই মোছা জিনিস আর ফেরত আসে না। ' + (recursive ? '`-r` ফোল্ডারের ভেতরের সবকিছুসহ মুছেছে। এই simulator-এ Undo আছে, আসল Linux-এ নেই।' : 'ফোল্ডার মুছতে `-r` লাগে।');
         },
         head: function (i) { return code('head') + ' ফাইলের প্রথম কয়েক লাইন দেখায়, কিছু না বললে ১০টা। সংখ্যা ঠিক করতে ' + code('head -n 3') + '।'; },
-        tail: function (i) { return code('tail') + ' ফাইলের শেষ কয়েক লাইন দেখায়, কিছু না বললে ১০টা। log ফাইলের নতুন খবর শেষেই থাকে, তাই এটা log দেখার সময় কাজে লাগে।'; },
+        tail: function (i) {
+            if (flagsOf(i.args).indexOf('f') !== -1) return code('tail -f') + ' ফাইলের শেষ কয়েক লাইন দেখিয়ে অপেক্ষা করে, নতুন লাইন এলেই দেখায়। log ফাইল চোখে চোখে রাখতে এটা কাজে লাগে। command শেষ হয় না, তাই থামাতে ' + code('Ctrl+C') + ' চাপুন।';
+            return code('tail') + ' ফাইলের শেষ কয়েক লাইন দেখায়, কিছু না বললে ১০টা। log ফাইলের নতুন খবর শেষেই থাকে, তাই এটা log দেখার সময় কাজে লাগে। চলতে থাকা log দেখতে ' + code('tail -f') + '।';
+        },
         wc: function (i) { return code('wc') + ' (word count) গোনে। ' + code('-l') + ' লাইন, ' + code('-w') + ' শব্দ, ' + code('-c') + ' byte। কোনো ফল গুনতে pipe-এর শেষে ' + code('| wc -l') + ' বসানো হয়।'; },
         grep: function (i) { return code('grep') + ' লেখার ভেতর থেকে pattern-এর সাথে মেলা লাইন খুঁজে দেখায়। ' + code('-i') + ' বড়-ছোট হাতের ভেদ করে না, ' + code('-n') + ' লাইন নম্বর দেখায়, ' + code('-v') + ' যেগুলো মেলে না সেগুলো দেখায়, ' + code('-r') + ' ফোল্ডারের ভেতরের সব ফাইলে খোঁজে।'; },
         find: function () { return code('find') + ' ফোল্ডারের ভেতরের সব স্তরে খুঁজে নাম বা ধরন মিলিয়ে ফল দেয়। ' + code('-name "*.js"') + ' নামের ধরন দেখে, ' + code('-type d') + ' শুধু ফোল্ডার খোঁজে। ' + code('*') + ' shell-কে আগে খেয়ে নিতে না দিতে quote-এ রাখুন।'; },
@@ -127,6 +187,41 @@
         which: function () { return code('which') + ' বলে একটা command-এর ফাইল কোথায় আছে। ' + code('PATH') + '-এর ফোল্ডারগুলোতে সেটা খোঁজা হয়।'; },
         man: function () { return code('man') + ' (manual) কোনো command কীভাবে চলে তার বিবরণ দেখায়। কোন option কী করে তা ভুলে গেলে এখানে দেখুন।'; },
         '=': function (i) { return 'আপনি variable-এ মান বসিয়েছেন। ' + code('echo $' + i.args[0].split('=')[0]) + ' লিখলে মানটা দেখা যাবে।'; },
+        chmod: function (i) {
+            var ops = operandsOf(i.args);
+            var mode = ops[0] || '';
+            return code('chmod') + ' ফাইলের অধিকার (পড়া, লেখা, চালানো) বদলায়। ' + chmodText(mode) + (addsExecute(mode) ? ' `ls -l` দিলে এখন নামের জায়গায় `x` দেখা যাবে, আর script হলে `./নাম` দিয়ে চালানো যাবে।' : '');
+        },
+        chown: function (i) {
+            return code('chown') + ' ফাইলের মালিক বদলায়। ' + code(operandsOf(i.args)[0] || '') + ' মানে ' + code('মালিক:দল') + '। মালিক বদলাতে পারে শুধু root, তাই সাধারণত ' + code('sudo chown ...') + ' লাগে। ' + code('-R') + ' ভেতরের সবকিছুর মালিকও বদলায়।';
+        },
+        sudo: function (i) {
+            var inner = i.args[0];
+            var fn = BY_NAME[inner];
+            var innerText = fn ? ' ' + fn({ name: inner, args: i.args.slice(1), before: i.before, after: i.after, redirected: false }) : '';
+            return code('sudo') + ' একটা command root হিসেবে চালায়। root সবকিছু পারে আর কেউ তাকে আটকায় না, তাই ভুল command-ও চলে যায়। না বুঝে sudo দেবেন না।' + innerText;
+        },
+        whoami: function (i) { return code('whoami') + ' বলে এখন আপনি কোন user। ' + code('sudo whoami') + ' দিলে ' + code('root') + ' দেখাবে, কারণ sudo কাজটা root হিসেবে করে।'; },
+        id: function () { return code('id') + ' আপনার user আর group-এর পরিচয় দেখায়। ' + code('sudo') + ' group-এ থাকলে আপনি ' + code('sudo') + ' ব্যবহার করতে পারেন।'; },
+        ps: function () {
+            return code('ps') + ' চলতে থাকা process-এর তালিকা দেখায়। কিছু না দিলে শুধু এই terminal-এর process। ' + code('ps aux') + ' সবার সব process দেখায়। ' + code('PID') + ' হলো process-এর নম্বর, ' + code('kill') + ' এই নম্বর দিয়েই কাজ করে। কে বেশি CPU খাচ্ছে বুঝতে ' + code('%CPU') + ' কলাম দেখুন।';
+        },
+        kill: function (i) {
+            var pids = operandsOf(i.args).join(', ');
+            var forced = /^-(9|KILL|SIGKILL)$/.test(i.args[0] || '');
+            if (i.survived && i.survived.length) {
+                return code('kill ' + i.survived.join(' ')) + ' process-কে ভদ্রভাবে বন্ধ হতে বলেছে (SIGTERM), কিন্তু এটা কথা শোনেনি। ' + code('ps aux') + ' দিয়ে দেখুন এখনো চলছে। জোর করে থামাতে ' + code('kill -9 ' + i.survived[0]) + ' (SIGKILL), তবে এতে program নিজে গুছিয়ে বন্ধ হওয়ার সুযোগ পায় না, তাই আগে ভদ্রভাবে চেষ্টা করাই নিয়ম।';
+            }
+            return code('kill') + ' process-কে signal পাঠায়: ' + code(pids) + (forced ? '-কে জোর করে থামানো হয়েছে (SIGKILL)।' : '-কে বন্ধ হতে বলা হয়েছে (SIGTERM)।') + ' ' + code('ps aux') + ' দিয়ে দেখুন আর আছে কিনা।';
+        },
+        du: function () { return code('du') + ' দেখায় ফোল্ডার কতটা জায়গা নিয়েছে। ' + code('-s') + ' শুধু মোট দেয়, ' + code('-h') + ' K, M-এর মতো সহজ রূপে দেখায়, তাই সাধারণত ' + code('du -sh') + ' লেখা হয়।'; },
+        df: function () { return code('df') + ' দেখায় disk-এ কত জায়গা আছে আর কতটা ফুরিয়েছে। ' + code('-h') + ' সহজ রূপে দেখায়। ' + code('Use%') + ' ১০০-র কাছে গেলে server-এ সমস্যা শুরু হয়।'; },
+        ln: function () { return code('ln -s') + ' শর্টকাট (symbolic link) বানায়: ' + code('ls -l') + '-এ ' + code('নাম -> লক্ষ্য') + ' দেখা যাবে। লক্ষ্য সরালে বা মুছলে link ভেঙে যায়।'; },
+        nano: function (i) { return code('nano') + ' সাধারণ লেখার editor। নিচে editor খুলেছে: লিখুন, তারপর ' + code('সেভ') + ' (বা Ctrl+S) চাপুন। না চাইলে বন্ধ করুন, ফাইল বদলাবে না।'; },
+        date: function () { return code('date') + ' এখনকার তারিখ আর সময় দেখায়। এই simulator-এর ঘড়ি নকল, ফাইল বদলালে এগোয়। ' + code('date +%F') + ' দিলে শুধু ' + code('২০২৬-১১-১৮') + ' ধরনের তারিখ।'; },
+        uname: function () { return code('uname') + ' system-এর নাম আর ভার্সন দেখায়। ' + code('uname -a') + ' সব তথ্য একসাথে দেয়।'; },
+        hostname: function () { return code('hostname') + ' এই কম্পিউটারের নাম দেখায়। prompt-এ ' + code('@') + '-এর পরের নামটাই এটা।'; },
+        sleep: function (i) { return code('sleep') + ' কিছুক্ষণ অপেক্ষা করে। বেশি সময়ের হলে ' + code('Ctrl+C') + ' দিয়ে থামানো যায়।'; },
         clear: function () { return ''; },
         history: function () {
             return code('history') + ' আগে চালানো command-গুলোর তালিকা। ' + code('↑') + ' চেপেও আগের command ফিরিয়ে আনা যায়।';
@@ -223,7 +318,7 @@
         if (stage.code) return errorOf(stage, info);
         if (stage.script) return stageLabel(stage) + ' একটা script। এর ভেতরের command-গুলো একে একে চলেছে। script-এর ভেতরে `cd` করলেও আপনার জায়গা বদলায় না, কারণ script আলাদা process।';
         var fn = BY_NAME[stage.name];
-        return fn ? fn({ name: stage.name, args: stage.args, before: info.before, after: info.after, redirected: stage.redirects.length > 0 }) : '';
+        return fn ? fn({ name: stage.name, args: stage.args, before: info.before, after: info.after, redirected: stage.redirects.length > 0, survived: stage.survived }) : '';
     }
 
     function explainLine(info) {

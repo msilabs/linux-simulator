@@ -20,7 +20,7 @@ export function runAll(lines, state) {
     const outputs = lines.map((line) => {
         const result = Shell.run(current, line);
         current = result.state;
-        return { line, stdout: result.stdout, stderr: result.stderr, code: result.code, errno: result.errno, explain: result.explain };
+        return { ...result, line, state: undefined };
     });
     return { state: current, outputs };
 }

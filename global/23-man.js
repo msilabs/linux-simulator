@@ -1,4 +1,4 @@
-// বাংলা manual page। P3-তে chmod, sudo, ps-এর মতো command-এর page যোগ হবে।
+// বাংলা manual page
 (function (root) {
     var pages = {
         "ls": {
@@ -303,6 +303,10 @@
                         [
                                 "-n +N",
                                 "N নম্বর লাইন থেকে শেষ পর্যন্ত"
+                        ],
+                        [
+                                "-f",
+                                "শেষে নজর রাখে, নতুন লাইন এলেই দেখায় (Ctrl+C-তে থামে)"
                         ]
                 ],
                 "examples": [
@@ -594,6 +598,264 @@
                         [
                                 "man ls",
                                 "`ls`-এর manual"
+                        ]
+                ]
+        },
+        "chmod": {
+                "summary": "ফাইলের অধিকার (পড়া, লেখা, চালানো) বদলায়",
+                "usage": "chmod [option] mode ফাইল...",
+                "options": [
+                        [
+                                "-R",
+                                "ভেতরের সবকিছুর অধিকারও"
+                        ],
+                        [
+                                "-v",
+                                "কী বদলাল তা বলে"
+                        ]
+                ],
+                "examples": [
+                        [
+                                "chmod +x backup.sh",
+                                "script চালানোর অধিকার দেওয়া"
+                        ],
+                        [
+                                "chmod 644 notes.txt",
+                                "মালিক পড়বে-লিখবে, বাকিরা শুধু পড়বে"
+                        ],
+                        [
+                                "chmod 755 scripts",
+                                "ফোল্ডার আর script-এর সাধারণ অধিকার"
+                        ]
+                ]
+        },
+        "chown": {
+                "summary": "ফাইলের মালিক বদলায়। শুধু root পারে",
+                "usage": "chown [option] মালিক[:দল] ফাইল...",
+                "options": [
+                        [
+                                "-R",
+                                "ভেতরের সবকিছুর মালিকও"
+                        ]
+                ],
+                "examples": [
+                        [
+                                "sudo chown www-data:www-data site",
+                                "মালিক আর দল বদলানো"
+                        ]
+                ]
+        },
+        "sudo": {
+                "summary": "একটা command root হিসেবে চালায়",
+                "usage": "sudo command [argument...]",
+                "options": [],
+                "examples": [
+                        [
+                                "sudo whoami",
+                                "root দেখাবে"
+                        ],
+                        [
+                                "sudo ls /root",
+                                "root-এর ফোল্ডার দেখা"
+                        ]
+                ]
+        },
+        "whoami": {
+                "summary": "এখন কোন user হিসেবে আছেন তা দেখায়",
+                "usage": "whoami",
+                "options": [],
+                "examples": [
+                        [
+                                "whoami",
+                                "dev"
+                        ]
+                ]
+        },
+        "id": {
+                "summary": "user আর group-এর পরিচয় দেখায়",
+                "usage": "id",
+                "options": [],
+                "examples": [
+                        [
+                                "id",
+                                "uid=1000(dev) gid=1000(dev) ..."
+                        ]
+                ]
+        },
+        "ps": {
+                "summary": "চলতে থাকা process-এর তালিকা দেখায়",
+                "usage": "ps [aux | -ef]",
+                "options": [
+                        [
+                                "aux",
+                                "সবার সব process, CPU আর memory সহ"
+                        ],
+                        [
+                                "-ef",
+                                "সব process, অন্য সাজে"
+                        ]
+                ],
+                "examples": [
+                        [
+                                "ps aux | grep node",
+                                "node-এর process খোঁজা"
+                        ]
+                ]
+        },
+        "kill": {
+                "summary": "process-কে signal পাঠায়",
+                "usage": "kill [-signal] PID...",
+                "options": [
+                        [
+                                "-15",
+                                "ভদ্রভাবে বন্ধ হতে বলা (সাধারণ)"
+                        ],
+                        [
+                                "-9",
+                                "জোর করে মারা (শেষ উপায়)"
+                        ]
+                ],
+                "examples": [
+                        [
+                                "kill 2301",
+                                "ভদ্রভাবে"
+                        ],
+                        [
+                                "kill -9 2301",
+                                "জোর করে"
+                        ]
+                ]
+        },
+        "du": {
+                "summary": "ফোল্ডার কতটা জায়গা নিয়েছে দেখায়",
+                "usage": "du [option] [ফোল্ডার...]",
+                "options": [
+                        [
+                                "-s",
+                                "শুধু মোট"
+                        ],
+                        [
+                                "-h",
+                                "K, M-এর মতো সহজ রূপে"
+                        ],
+                        [
+                                "-a",
+                                "ফাইলও দেখায়"
+                        ]
+                ],
+                "examples": [
+                        [
+                                "du -sh projects",
+                                "মোট কত"
+                        ]
+                ]
+        },
+        "df": {
+                "summary": "disk-এ কত জায়গা আছে দেখায়",
+                "usage": "df [-h]",
+                "options": [
+                        [
+                                "-h",
+                                "সহজ রূপে"
+                        ]
+                ],
+                "examples": [
+                        [
+                                "df -h",
+                                "ফাঁকা জায়গা"
+                        ]
+                ]
+        },
+        "ln": {
+                "summary": "শর্টকাট (symbolic link) বানায়",
+                "usage": "ln -s লক্ষ্য [নাম]",
+                "options": [
+                        [
+                                "-s",
+                                "symbolic link"
+                        ],
+                        [
+                                "-f",
+                                "আগের নাম থাকলে বদলে দেয়"
+                        ]
+                ],
+                "examples": [
+                        [
+                                "ln -s projects/my-site site",
+                                "`site` নামে শর্টকাট"
+                        ]
+                ]
+        },
+        "nano": {
+                "summary": "লেখার editor খোলে",
+                "usage": "nano ফাইল",
+                "options": [],
+                "examples": [
+                        [
+                                "nano notes.txt",
+                                "নোট বদলানো"
+                        ]
+                ]
+        },
+        "date": {
+                "summary": "তারিখ আর সময় দেখায়",
+                "usage": "date [+format]",
+                "options": [
+                        [
+                                "+%F",
+                                "২০২৬-১১-১৮ ধরনের তারিখ"
+                        ],
+                        [
+                                "+%T",
+                                "সময়"
+                        ]
+                ],
+                "examples": [
+                        [
+                                "date +%F",
+                                "শুধু তারিখ"
+                        ]
+                ]
+        },
+        "uname": {
+                "summary": "system-এর নাম আর ভার্সন দেখায়",
+                "usage": "uname [-a]",
+                "options": [
+                        [
+                                "-a",
+                                "সব তথ্য"
+                        ]
+                ],
+                "examples": [
+                        [
+                                "uname -a",
+                                "পুরো তথ্য"
+                        ]
+                ]
+        },
+        "hostname": {
+                "summary": "এই কম্পিউটারের নাম দেখায়",
+                "usage": "hostname",
+                "options": [],
+                "examples": [
+                        [
+                                "hostname",
+                                "laptop"
+                        ]
+                ]
+        },
+        "sleep": {
+                "summary": "কিছুক্ষণ অপেক্ষা করে",
+                "usage": "sleep সেকেন্ড",
+                "options": [],
+                "examples": [
+                        [
+                                "sleep 2",
+                                "দুই সেকেন্ড"
+                        ],
+                        [
+                                "sleep 100",
+                                "লম্বা, Ctrl+C দিয়ে থামান"
                         ]
                 ]
         }

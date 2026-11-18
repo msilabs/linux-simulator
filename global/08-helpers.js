@@ -10,7 +10,9 @@
         ENOTDIR: 'Not a directory',
         EISDIR: 'Is a directory',
         EEXIST: 'File exists',
-        ENOTEMPTY: 'Directory not empty'
+        ENOTEMPTY: 'Directory not empty',
+        ELOOP: 'Too many levels of symbolic links',
+        EPERM: 'Operation not permitted'
     };
 
     var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

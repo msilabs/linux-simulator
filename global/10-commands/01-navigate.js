@@ -62,7 +62,8 @@
         return 2 + subdirs;
     }
 
-    function longLines(entries, flags) {
+    // withTotal: ফোল্ডারের ভেতরের তালিকায় শুরুতে `total` লাইন থাকে, ফাইলের নাম ধরে দিলে থাকে না
+    function longLines(entries, flags, withTotal) {
         var rows = entries.map(function (entry) {
             var node = entry.node;
             var size = Fs.sizeOf(node);
@@ -83,7 +84,7 @@
         function left(text, w) { while (text.length < w) text += ' '; return text; }
         function right(text, w) { while (text.length < w) text = ' ' + text; return text; }
         var total = entries.reduce(function (sum, entry) { return sum + blocksOf(entry.node); }, 0);
-        var lines = ['total ' + total];
+        var lines = withTotal ? ['total ' + total] : [];
         rows.forEach(function (row) {
             lines.push([row[0], right(row[1], widths[1]), left(row[2], widths[2]), left(row[3], widths[3]), right(row[4], widths[4]), row[5], row[6]].join(' '));
         });
@@ -101,8 +102,8 @@
         return entries;
     }
 
-    function formatEntries(entries, flags, tty) {
-        if (flags.l) return longLines(entries, flags).join('\n') + '\n';
+    function formatEntries(entries, flags, tty, withTotal) {
+        if (flags.l) return longLines(entries, flags, withTotal).join('\n') + '\n';
         if (!entries.length) return '';
         var names = entries.map(function (entry) { return entry.name; });
         if (tty && !flags['1']) return names.join('  ') + '\n';
@@ -118,7 +119,7 @@
         run: function (ctx) {
             var state = ctx.state;
             var user = H.userOf(state);
-            var parsed = H.parseFlags(ctx.args, { name: 'ls', flags: 'laRh1' });
+            var parsed = H.parseFlags(ctx.args, { name: 'ls', flags: 'laRh1d' });
             if (parsed.error) return H.fail(state, parsed.error, 2, 'EOPT');
             var flags = parsed.flags;
             var operands = parsed.operands.length ? parsed.operands : ['.'];
@@ -137,13 +138,14 @@
             var dirs = [];
             operands.forEach(function (operand) {
                 var abs = H.resolveArg(state, operand);
-                var found = Fs.lookup(state.fs, user, abs);
+                var follow = !(flags.l && operand.charAt(operand.length - 1) !== '/');
+                var found = Fs.lookup(state.fs, user, abs, follow);
                 if (found.error) return problem("ls: cannot access '" + operand + "': " + H.errorText(found.error) + '\n', found.error);
-                if (found.node.kind === 'dir') dirs.push({ operand: operand, abs: abs, node: found.node });
+                if (found.node.kind === 'dir' && !flags.d) dirs.push({ operand: operand, abs: abs, node: found.node });
                 else files.push({ name: operand, node: found.node });
             });
 
-            if (files.length) out.push(formatEntries(files, flags, ctx.tty).replace(/\n$/, ''));
+            if (files.length) out.push(formatEntries(files, flags, ctx.tty, false).replace(/\n$/, ''));
 
             var showHeaders = operands.length > 1 || flags.R;
 
@@ -154,7 +156,7 @@
                 }
                 var parentFound = abs === '/' ? { node: node } : Fs.lookup(state.fs, user, Path.dirname(abs));
                 var entries = entriesOf(node, parentFound.node, flags);
-                var block = (showHeaders ? display + ':\n' : '') + formatEntries(entries, flags, ctx.tty).replace(/\n$/, '');
+                var block = (showHeaders ? display + ':\n' : '') + formatEntries(entries, flags, ctx.tty, true).replace(/\n$/, '');
                 out.push(block);
                 if (flags.R) {
                     entries.forEach(function (entry) {

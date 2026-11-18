@@ -70,7 +70,7 @@
             var history = Session.isStringArray(d.history) ? d.history.slice(-Session.MAX_HISTORY) : null;
             var step = typeof d.step === 'number' && d.step >= 0 ? d.step : 0;
             var base = rebuildState(d.base);
-            if (!lines || !history || !base || !Session.isStringArray(d.log)) return { status: 'corrupt' };
+            if (!lines || !history || !base || !Session.isValidLog(d.log)) return { status: 'corrupt' };
 
             var replayed = Session.replay(base, d.log);
             var steps = d.steps;

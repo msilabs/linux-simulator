@@ -103,7 +103,7 @@
 
         var etc = dirOf('root', 'root', 0o755, {
             hosts: fileOf('root', 'root', 0o644, '127.0.0.1\tlocalhost\n127.0.1.1\tlaptop\n', -20000),
-            passwd: fileOf('root', 'root', 0o644, 'root:x:0:0:root:/root:/bin/bash\ndev:x:1000:1000:dev:/home/dev:/bin/bash\n', -20000)
+            passwd: fileOf('root', 'root', 0o644, 'root:x:0:0:root:/root:/bin/bash\ndev:x:1000:1000:dev:/home/dev:/bin/bash\nwww-data:x:33:33:www-data:/var/www:/usr/sbin/nologin\n', -20000)
         }, -20000);
 
         return dirOf('root', 'root', 0o755, {
@@ -129,7 +129,13 @@
                 SHELL: '/bin/bash'
             },
             aliases: {},
-            processes: [],
+            processes: [
+                { pid: 1, user: 'root', cpu: 0.0, mem: 0.1, vsz: 168960, rss: 11800, tty: '?', stat: 'Ss', start: '08:00', time: '0:02', cmd: '/sbin/init' },
+                { pid: 612, user: 'root', cpu: 0.0, mem: 0.2, vsz: 55280, rss: 5120, tty: '?', stat: 'Ss', start: '08:00', time: '0:00', cmd: 'nginx: master process /usr/sbin/nginx' },
+                { pid: 613, user: 'www-data', cpu: 0.0, mem: 0.3, vsz: 55960, rss: 5612, tty: '?', stat: 'S', start: '08:00', time: '0:00', cmd: 'nginx: worker process' },
+                { pid: 1001, user: 'dev', cpu: 0.0, mem: 0.1, vsz: 21880, rss: 5300, tty: 'pts/0', stat: 'Ss', start: '08:01', time: '0:00', cmd: 'bash' },
+                { pid: 2301, user: 'dev', cpu: 97.3, mem: 12.1, vsz: 1250840, rss: 198400, tty: '?', stat: 'R', start: '09:12', time: '41:07', cmd: 'node server.js', stubborn: true }
+            ],
             clock: 0
         };
     }

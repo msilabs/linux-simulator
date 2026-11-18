@@ -9,6 +9,8 @@
             if (!next) return 'অভিনন্দন! "' + title + '" শেষ। সব mission শেষ হয়েছে। এখন নিজের মতো করে যা খুশি চালিয়ে দেখুন।';
             return 'অভিনন্দন! "' + title + '" শেষ। এবার mission ' + number + ': ' + next + '।';
         },
+        fileSaved: function (path) { return '`' + path + '` সেভ হয়েছে। `cat` দিয়ে দেখুন।'; },
+        stopped: 'Ctrl+C চলতে থাকা program-কে থামতে বলে (আসলে SIGINT signal পাঠায়)। কোনো program আটকে গেলে বা শেষ হচ্ছে না মনে হলে এটাই প্রথম চেষ্টা।',
         saveFailed: 'এই browser-এ অগ্রগতি সেভ করা যাচ্ছে না (হয়তো private window)। পেজ রিলোড করলে সব হারাবে।',
         corruptSave: 'আগের সেভ করা অবস্থা পড়া যায়নি, তাই নতুন করে শুরু হলো।'
     };

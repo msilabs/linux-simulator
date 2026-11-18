@@ -16,6 +16,16 @@
     var undoBtn = document.getElementById('btn-undo');
     var resetBtn = document.getElementById('btn-reset');
     var notice = document.getElementById('term-notice');
+    var runningBar = document.getElementById('term-running');
+    var runningName = document.getElementById('running-name');
+    var stopBtn = document.getElementById('btn-stop');
+    var editor = document.getElementById('editor');
+    var editorTitle = document.getElementById('editor-title');
+    var editorState = document.getElementById('editor-state');
+    var editorText = document.getElementById('editor-text');
+    var editorError = document.getElementById('editor-error');
+    var editorSave = document.getElementById('editor-save');
+    var editorCancel = document.getElementById('editor-cancel');
 
     var session;
     var historyIndex = -1;
@@ -86,13 +96,35 @@
         return el;
     }
 
+    function openEditor() {
+        var edit = session.editing;
+        editorTitle.textContent = edit.shown;
+        editorText.value = edit.content;
+        editorText.readOnly = !edit.writable;
+        editorSave.disabled = !edit.writable;
+        editorState.textContent = !edit.writable ? 'শুধু পড়া যাবে, লেখার অধিকার নেই' : edit.exists ? '' : 'নতুন ফাইল';
+        editorError.hidden = true;
+        editor.hidden = false;
+        editorText.focus();
+    }
+
+    function closeEditor() {
+        editor.hidden = true;
+        input.focus();
+    }
+
     function render() {
         var frag = document.createDocumentFragment();
         session.lines.forEach(function (line) { frag.appendChild(lineElement(line)); });
         out.textContent = '';
         out.appendChild(frag);
         promptEl.textContent = Shell.prompt(session.state);
-        undoBtn.disabled = session.past.length === 0;
+        undoBtn.disabled = session.past.length === 0 || !!session.running || !!session.editing;
+        form.hidden = !!session.running;
+        runningBar.hidden = !session.running;
+        if (session.running) runningName.textContent = session.running.name;
+        if (session.editing && editor.hidden) openEditor();
+        if (!session.editing && !editor.hidden) closeEditor();
         term.scrollTop = term.scrollHeight;
     }
 
@@ -159,6 +191,38 @@
 
     term.addEventListener('click', function () {
         if (!window.getSelection || window.getSelection().toString() === '') input.focus();
+    });
+
+    function stop() {
+        if (!session.running) return;
+        session = Session.stopRunning(session);
+        commit();
+        input.focus();
+    }
+
+    stopBtn.addEventListener('click', stop);
+    document.addEventListener('keydown', function (e) {
+        if (session.running && e.ctrlKey && (e.key === 'c' || e.key === 'C')) { e.preventDefault(); stop(); }
+        if (!editor.hidden && e.key === 'Escape') { e.preventDefault(); session = Session.cancelEdit(session); render(); }
+        if (!editor.hidden && e.ctrlKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); saveEdit(); }
+    });
+
+    function saveEdit() {
+        if (!session.editing || !session.editing.writable) return;
+        var result = Session.saveFile(session, session.editing.path, editorText.value, session.editing.shown);
+        if (result.error) {
+            editorError.textContent = result.error;
+            editorError.hidden = false;
+            return;
+        }
+        session = result.session;
+        commit();
+    }
+
+    editorSave.addEventListener('click', saveEdit);
+    editorCancel.addEventListener('click', function () {
+        session = Session.cancelEdit(session);
+        render();
     });
 
     undoBtn.addEventListener('click', function () {

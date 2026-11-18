@@ -77,7 +77,7 @@
 
     function pieces(ctx, name, pick) {
         var state = ctx.state;
-        var parsed = H.parseFlags(countOptions(ctx.args), { name: name, flags: 'qv', valued: 'n' });
+        var parsed = H.parseFlags(countOptions(ctx.args), { name: name, flags: name === 'tail' ? 'qvf' : 'qv', valued: 'n' });
         if (parsed.error) return failure(state, parsed.error, 'EOPT');
         var raw = parsed.flags.n === undefined ? '10' : parsed.flags.n;
         if (!/^[-+]?\d+$/.test(raw)) return failure(state, name + ": invalid number of lines: '" + raw + "'\n", 'EOPT');
@@ -89,7 +89,9 @@
             if (showNames) out += (index ? '\n' : '') + '==> ' + input.label + ' <==\n';
             out += pick(segments(input.text), raw);
         });
-        return { state: state, stdout: out, stderr: got.err, code: got.err ? 1 : 0, errno: got.errno };
+        var result = { state: state, stdout: out, stderr: got.err, code: got.err ? 1 : 0, errno: got.errno };
+        if (parsed.flags.f && !got.err) result.waiting = { name: 'tail -f' };
+        return result;
     }
 
     Registry.register('head', {

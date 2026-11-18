@@ -17,6 +17,8 @@
         require('./10-commands/03-session.js');
         require('./10-commands/04-text.js');
         require('./10-commands/05-environment.js');
+        require('./10-commands/06-permissions.js');
+        require('./10-commands/07-system.js');
     }
 
     var MAX_DEPTH = 5;
@@ -206,6 +208,9 @@
 
         var final = { state: routed.state, stdout: routed.term, stderr: routed.termErr, pipe: routed.pipe, code: result.code, errno: result.errno };
         if (result.clear) final.clear = true;
+        if (result.waiting) final.waiting = result.waiting;
+        if (result.edit) final.edit = result.edit;
+        if (result.survived) stage.survived = result.survived;
         return done(final);
     }
 
@@ -225,6 +230,8 @@
         var stages = [];
         var last = { code: 0 };
         var clear = false;
+        var waiting = null;
+        var edit = null;
 
         pipeline.forEach(function (command, index) {
             var r = execCommand(state, command, text, index === pipeline.length - 1, env);
@@ -235,6 +242,8 @@
             stages.push(r.stage);
             last = r;
             if (r.clear) clear = true;
+            if (r.waiting) waiting = r.waiting;
+            if (r.edit) edit = r.edit;
         });
 
         if (pipeline.length > 1) state = Object.assign({}, state, { cwd: original.cwd, env: original.env, aliases: original.aliases });
@@ -242,6 +251,8 @@
         stages.forEach(function (s) { if (s.code) errno = s.errno || errno; });
         var result = { state: state, stdout: out, stderr: err, code: last.code, errno: last.code ? last.errno : undefined, stages: stages };
         if (clear) result.clear = true;
+        if (waiting) result.waiting = waiting;
+        if (edit) result.edit = edit;
         if (!result.errno && result.code && errno) result.errno = errno;
         return result;
     }
@@ -266,6 +277,8 @@
         var skip = false;
         var errno;
         var clear = false;
+        var waiting = null;
+        var edit = null;
 
         parsed.list.forEach(function (item, index) {
             if (!skip) {
@@ -276,6 +289,8 @@
                 status = r.code;
                 errno = r.code ? r.errno : undefined;
                 if (r.clear) clear = true;
+                if (r.waiting) waiting = r.waiting;
+                if (r.edit) edit = r.edit;
                 items.push({ text: textOf(item.pipeline), stages: r.stages, sep: item.sep, code: r.code, errno: r.errno });
             } else {
                 items.push({ text: textOf(item.pipeline), stages: [], sep: item.sep, skipped: true });
@@ -289,6 +304,8 @@
 
         var result = { state: state, stdout: out, stderr: err, code: status, errno: status ? errno : undefined, items: items };
         if (clear) result.clear = true;
+        if (waiting) result.waiting = waiting;
+        if (edit) result.edit = edit;
         return result;
     }
 
@@ -322,7 +339,16 @@
         return result;
     }
 
-    var api = { run: run, prompt: prompt };
+    // editor থেকে সেভ: ফাইলে সম্পূর্ণ লেখা বসায়। ফেরত { state } বা { error, errno }
+    function writeFile(state, abs, content) {
+        var opened = openForWrite(state, abs, abs, false);
+        if (opened.error) return { error: opened.error, errno: opened.errno };
+        var next = appendText(opened.state, abs, content);
+        if (next.fs !== state.fs) next = Object.assign({}, next, { clock: next.clock + 1 });
+        return { state: next };
+    }
+
+    var api = { run: run, prompt: prompt, writeFile: writeFile };
     if (isNode) module.exports = api;
     else root.LinuxShell = api;
 })(typeof self !== 'undefined' ? self : this);

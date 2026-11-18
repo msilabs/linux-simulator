@@ -122,8 +122,8 @@ test('uniq: adjacent only, -c, -d, -u', () => {
 });
 
 test('cut: fields, delimiter, ranges, characters, -s', () => {
-    assert.equal(last(['cut -d: -f1 /etc/passwd']).stdout, 'root\ndev\n');
-    assert.equal(last(['cut -d: -f1,3 /etc/passwd']).stdout, 'root:0\ndev:1000\n');
+    assert.equal(last(['cut -d: -f1 /etc/passwd']).stdout, 'root\ndev\nwww-data\n');
+    assert.equal(last(['cut -d: -f1,3 /etc/passwd']).stdout, 'root:0\ndev:1000\nwww-data:33\n');
     assert.equal(last(['echo "a,b,c,d" | cut -d, -f2-']).stdout, 'b,c,d\n');
     assert.equal(last(['echo "a,b,c,d" | cut -d, -f-2']).stdout, 'a,b\n');
     assert.equal(last(['echo hello | cut -c1-3']).stdout, 'hel\n');
