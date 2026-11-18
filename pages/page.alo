@@ -5,28 +5,61 @@
             <p>ব্রাউজারে নকল terminal। command চালান, প্রতিটার বাংলা ব্যাখ্যা পান, ভুল করলে Undo করুন। কিছু install করতে হয় না।</p>
         </section>
 
-        <section class="card term-card" aria-label="Terminal">
-            <div class="term" id="term">
-                <div class="term-out" id="term-out" role="log" aria-live="polite"></div>
-                <form class="term-form" id="term-form" autocomplete="off">
-                    <label class="term-label" for="term-input">
-                        <span class="prompt" id="term-prompt"></span>
-                    </label>
-                    <input id="term-input" class="term-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="command লিখুন">
-                </form>
-            </div>
-            <div class="term-running" id="term-running" hidden>
-                <span><code id="running-name"></code> চলছে, শেষ হচ্ছে না।</span>
-                <button class="btn small" type="button" id="btn-stop">Ctrl+C দিয়ে থামান</button>
-            </div>
-            <p class="term-notice" id="term-notice" hidden></p>
-            <div class="term-actions">
-                <button class="btn" type="button" id="btn-undo" disabled>Undo</button>
-                <button class="btn" type="button" id="btn-reset">শুরু থেকে</button>
-                <span class="term-hint">Tab = নাম পূরণ · ↑ ↓ = আগের command · Ctrl+L = পর্দা পরিষ্কার</span>
-            </div>
-            <noscript><p class="term-notice">এই simulator চালাতে JavaScript লাগে।</p></noscript>
-        </section>
+        <div class="app">
+            <section class="card term-card" aria-label="Terminal">
+                <div class="term" id="term">
+                    <div class="term-out" id="term-out" role="log" aria-live="polite"></div>
+                    <form class="term-form" id="term-form" autocomplete="off">
+                        <label class="term-label" for="term-input">
+                            <span class="prompt" id="term-prompt"></span>
+                        </label>
+                        <input id="term-input" class="term-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="command লিখুন">
+                    </form>
+                </div>
+                <div class="keybar" id="keybar" role="toolbar" aria-label="বিশেষ key">
+                    <button type="button" data-key="Tab">Tab</button>
+                    <button type="button" data-key="Up">↑</button>
+                    <button type="button" data-key="Down">↓</button>
+                    <button type="button" data-key="Ctrl+C">Ctrl+C</button>
+                    <button type="button" data-insert="|">|</button>
+                    <button type="button" data-insert="~">~</button>
+                    <button type="button" data-insert="/">/</button>
+                    <button type="button" data-insert="-">-</button>
+                    <button type="button" data-insert=">">&gt;</button>
+                    <button type="button" data-insert=".">.</button>
+                    <button type="button" data-insert="*">*</button>
+                </div>
+                <div class="term-running" id="term-running" hidden>
+                    <span><code id="running-name"></code> চলছে, শেষ হচ্ছে না।</span>
+                    <button class="btn small" type="button" id="btn-stop">Ctrl+C দিয়ে থামান</button>
+                </div>
+                <p class="term-notice" id="term-notice" hidden></p>
+                <div class="term-actions">
+                    <button class="btn" type="button" id="btn-undo" disabled>Undo</button>
+                    <button class="btn" type="button" id="btn-reset">শুরু থেকে</button>
+                    <span class="term-hint">Tab = নাম পূরণ · ↑ ↓ = আগের command · Ctrl+L = পর্দা পরিষ্কার</span>
+                </div>
+                <noscript><p class="term-notice">এই simulator চালাতে JavaScript লাগে।</p></noscript>
+            </section>
+            <aside class="card tree-card" aria-label="ফাইল গাছ">
+                <div class="tree-head">
+                    <h2>ফাইল</h2>
+                    <div class="tree-opts">
+                        <label><input type="checkbox" id="tree-perms" checked> অধিকার</label>
+                        <label><input type="checkbox" id="tree-hidden" checked> লুকানো</label>
+                    </div>
+                </div>
+                <div class="tree" id="tree" role="tree" aria-label="ফাইলের গাছ"></div>
+                <p class="tree-note" id="tree-note" hidden></p>
+                <div class="preview" id="preview" hidden>
+                    <div class="preview-head">
+                        <strong id="preview-name"></strong>
+                        <button class="btn small" type="button" id="preview-close">বন্ধ</button>
+                    </div>
+                    <pre id="preview-text"></pre>
+                </div>
+            </aside>
+        </div>
     </main>
 
     <div class="editor" id="editor" hidden role="dialog" aria-modal="true" aria-labelledby="editor-title">

@@ -86,6 +86,8 @@ code, pre { font-family: var(--f-code); font-variant-ligatures: none; }
 .term-card { display: grid; gap: 12px; padding: 14px; }
 .term { background: var(--term-bg); color: var(--term-ink); border-radius: 14px; padding: 14px; height: min(62vh, 560px); min-height: 320px; overflow-y: auto; overscroll-behavior: contain; font-family: var(--f-code); font-size: 14px; line-height: 1.55; cursor: text; }
 .term-out .line { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-family: inherit; }
+/* ls -l-র মতো সারি করা আউটপুট ভাঙার বদলে আড়াআড়ি scroll হয় */
+.term-out pre.line.output { white-space: pre; overflow-x: auto; }
 .term .prompt { color: var(--term-prompt); font-weight: 700; }
 .term .line.input .cmd { color: #fff; }
 .term .line.error { color: var(--term-err); }
@@ -124,3 +126,38 @@ code, pre { font-family: var(--f-code); font-variant-ligatures: none; }
 .editor-text { width: 100%; min-height: 240px; height: 50vh; resize: vertical; padding: 12px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--term-bg); color: var(--term-ink); font: 14px/1.55 var(--f-code); tab-size: 4; }
 .editor-text:read-only { opacity: .8; }
 .editor-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* দুই স্তম্ভ: terminal আর ফাইল */
+.app { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 18px; align-items: start; }
+.app > * { min-width: 0; }
+.tree-card { position: sticky; top: 76px; display: grid; gap: 10px; max-height: calc(100vh - 96px); overflow: auto; padding: 14px; }
+.tree-head { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; justify-content: space-between; }
+.tree-head h2 { margin: 0; font-family: var(--f-display); font-size: 18px; font-weight: 700; }
+.tree-opts { display: flex; gap: 12px; font-size: 13px; color: var(--muted); }
+.tree-opts label { display: inline-flex; gap: 5px; align-items: center; cursor: pointer; }
+.tree { display: grid; gap: 1px; font-family: var(--f-code); font-size: 13px; }
+.tree-row { display: flex; gap: 10px; align-items: baseline; justify-content: space-between; width: 100%; padding: 3px 8px; border: 0; border-radius: 8px; background: transparent; color: var(--ink); font: inherit; text-align: left; cursor: pointer; transition: background .3s; }
+.tree-row:hover { background: var(--surface-2); }
+.tree-row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tree-row .perm { flex: none; color: var(--muted); font-size: 11.5px; }
+.tree-row.dim .name { opacity: .6; }
+.tree-row.cwd { background: color-mix(in srgb, var(--accent) 14%, transparent); font-weight: 700; }
+.tree-row.fresh { background: color-mix(in srgb, var(--ok) 26%, transparent); }
+.tree-row.touched { background: color-mix(in srgb, var(--cursor) 28%, transparent); }
+.tree-note { margin: 0; padding: 6px 10px; border-radius: 8px; background: color-mix(in srgb, var(--bad) 12%, transparent); color: var(--bad); font-size: 13px; }
+.preview { display: grid; gap: 6px; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
+.preview-head { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+.preview-head strong { overflow: hidden; text-overflow: ellipsis; font: 600 12.5px var(--f-code); }
+.preview pre { margin: 0; max-height: 220px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12.5px; line-height: 1.5; }
+
+/* মোবাইলের বিশেষ key */
+.keybar { display: none; gap: 6px; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
+.keybar button { flex: none; min-width: 42px; height: 36px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface-2); color: var(--ink); font: 600 14px var(--f-code); cursor: pointer; }
+.keybar button:active { background: var(--accent); color: #06161c; }
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .tree-card { position: static; max-height: none; }
+  .keybar { display: flex; }
+}
+@media (prefers-reduced-motion: reduce) { .tree-row { transition: none; } }

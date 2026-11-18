@@ -26,6 +26,17 @@
     var editorError = document.getElementById('editor-error');
     var editorSave = document.getElementById('editor-save');
     var editorCancel = document.getElementById('editor-cancel');
+    var FileTree = window.LinuxFileTree;
+    var Fs = window.LinuxFs;
+    var treeEl = document.getElementById('tree');
+    var treePerms = document.getElementById('tree-perms');
+    var treeHidden = document.getElementById('tree-hidden');
+    var treeNote = document.getElementById('tree-note');
+    var preview = document.getElementById('preview');
+    var previewName = document.getElementById('preview-name');
+    var previewText = document.getElementById('preview-text');
+    var previewClose = document.getElementById('preview-close');
+    var keybar = document.getElementById('keybar');
 
     var session;
     var historyIndex = -1;
@@ -96,6 +107,98 @@
         return el;
     }
 
+    /* ---------- file tree ---------- */
+
+    var overrides = {};
+    var shownFs = null;
+    var shownCwd = null;
+    var fresh = { added: {}, changed: {} };
+    var freshTimer = null;
+    var noteTimer = null;
+
+    function setFresh(d) {
+        fresh = { added: {}, changed: {} };
+        d.added.forEach(function (p) { fresh.added[p] = true; });
+        d.changed.forEach(function (p) { fresh.changed[p] = true; });
+        clearTimeout(freshTimer);
+        freshTimer = setTimeout(function () { fresh = { added: {}, changed: {} }; renderTree(); }, 2400);
+        clearTimeout(noteTimer);
+        if (d.removed.length) {
+            var shown = d.removed.slice(0, 3).map(function (p) { return p.split('/').pop(); }).join(', ');
+            treeNote.textContent = 'মোছা হলো: ' + shown + (d.removed.length > 3 ? ' ও আরও ' + String(d.removed.length - 3).replace(/\d/g, function (n) { return '০১২৩৪৫৬৭৮৯'.charAt(n); }) + 'টা' : '');
+            treeNote.hidden = false;
+            noteTimer = setTimeout(function () { treeNote.hidden = true; }, 3200);
+        }
+    }
+
+    function icon(row) {
+        if (row.locked) return '🔒';
+        if (row.kind === 'dir') return row.open ? '📂' : '📁';
+        if (row.kind === 'link') return '🔗';
+        return '📄';
+    }
+
+    function showPreview(row) {
+        var found = Fs.lookup(session.state.fs, Fs.USERS[session.state.user], row.path);
+        var node = found.node;
+        if (!node || node.kind === 'dir') return;
+        previewName.textContent = row.path;
+        var text = node.kind === 'link' ? '→ ' + node.target : node.content;
+        previewText.textContent = !Fs.can(node, Fs.USERS[session.state.user], 'r') ? '(পড়ার অধিকার নেই)' : text.length > 4000 ? text.slice(0, 4000) + '\n…' : text || '(ফাইল খালি)';
+        preview.hidden = false;
+    }
+
+    function renderTree() {
+        var state = session.state;
+        if (shownFs !== state.fs) {
+            if (shownFs) {
+                var d = FileTree.diff(shownFs, state.fs);
+                if (d.added.length || d.changed.length || d.removed.length) setFresh(d);
+            }
+            shownFs = state.fs;
+        }
+        if (shownCwd !== state.cwd) {
+            Object.keys(FileTree.expandedFor(state.cwd)).forEach(function (p) { delete overrides[p]; });
+            shownCwd = state.cwd;
+        }
+        var expanded = Object.assign(FileTree.expandedFor(state.cwd), overrides);
+        var rows = FileTree.rows(state, { expanded: expanded, showHidden: treeHidden.checked });
+        var frag = document.createDocumentFragment();
+        rows.forEach(function (row) {
+            var el = document.createElement('button');
+            el.type = 'button';
+            el.className = 'tree-row' + (row.path === state.cwd ? ' cwd' : '') + (fresh.added[row.path] ? ' fresh' : '') + (fresh.changed[row.path] ? ' touched' : '') + (row.hidden ? ' dim' : '');
+            el.style.paddingLeft = (8 + row.depth * 14) + 'px';
+            el.setAttribute('role', 'treeitem');
+            el.dataset.path = row.path;
+            if (row.kind === 'dir') el.setAttribute('aria-expanded', String(row.open));
+            var name = document.createElement('span');
+            name.className = 'name';
+            name.textContent = icon(row) + ' ' + row.name + (row.kind === 'dir' && row.name !== '/' ? '/' : '') + (row.target ? ' → ' + row.target : '');
+            el.appendChild(name);
+            if (treePerms.checked) {
+                var perm = document.createElement('span');
+                perm.className = 'perm';
+                perm.textContent = row.mode + ' ' + row.owner;
+                el.appendChild(perm);
+            }
+            el.addEventListener('click', function () {
+                if (row.kind === 'dir') {
+                    if (row.locked) return;
+                    overrides[row.path] = !row.open;
+                    renderTree();
+                } else showPreview(row);
+            });
+            frag.appendChild(el);
+        });
+        treeEl.textContent = '';
+        treeEl.appendChild(frag);
+    }
+
+    treePerms.addEventListener('change', renderTree);
+    treeHidden.addEventListener('change', renderTree);
+    previewClose.addEventListener('click', function () { preview.hidden = true; });
+
     function openEditor() {
         var edit = session.editing;
         editorTitle.textContent = edit.shown;
@@ -123,6 +226,7 @@
         form.hidden = !!session.running;
         runningBar.hidden = !session.running;
         if (session.running) runningName.textContent = session.running.name;
+        renderTree();
         if (session.editing && editor.hidden) openEditor();
         if (!session.editing && !editor.hidden) closeEditor();
         term.scrollTop = term.scrollHeight;
@@ -162,31 +266,50 @@
         input.value = history[historyIndex];
     }
 
+    function doTab() {
+        var result = Complete.complete(session.state, input.value);
+        if (!result.candidates.length) return;
+        if (result.text !== input.value) { input.value = result.text; lastTab = ''; return; }
+        if (lastTab === input.value && result.candidates.length > 1) {
+            session = Session.showCompletions(session, input.value, result.candidates);
+            render();
+            lastTab = '';
+        } else {
+            lastTab = input.value;
+        }
+    }
+
+    function interruptInput() {
+        session = Session.interrupt(session, input.value);
+        input.value = '';
+        render();
+    }
+
     input.addEventListener('keydown', function (e) {
         if (e.key === 'ArrowUp') { e.preventDefault(); recall(-1); return; }
         if (e.key === 'ArrowDown') { e.preventDefault(); recall(1); return; }
-        if (e.key === 'Tab') {
-            e.preventDefault();
-            var result = Complete.complete(session.state, input.value);
-            if (!result.candidates.length) return;
-            if (result.text !== input.value) { input.value = result.text; lastTab = ''; return; }
-            if (lastTab === input.value && result.candidates.length > 1) {
-                session = Session.showCompletions(session, input.value, result.candidates);
-                render();
-                lastTab = '';
-            } else {
-                lastTab = input.value;
-            }
-            return;
-        }
+        if (e.key === 'Tab') { e.preventDefault(); doTab(); return; }
         lastTab = '';
         if (e.ctrlKey && (e.key === 'l' || e.key === 'L')) { e.preventDefault(); run('clear'); return; }
-        if (e.ctrlKey && (e.key === 'c' || e.key === 'C')) {
-            e.preventDefault();
-            session = Session.interrupt(session, input.value);
-            input.value = '';
-            render();
+        if (e.ctrlKey && (e.key === 'c' || e.key === 'C')) { e.preventDefault(); interruptInput(); }
+    });
+
+    // মোবাইলে keyboard-এ না থাকা key। mousedown থামালে input-এর focus (আর keyboard) সরে যায় না
+    keybar.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    keybar.addEventListener('click', function (e) {
+        var button = e.target.closest('button');
+        if (!button) return;
+        if (button.dataset.insert) {
+            input.setRangeText(button.dataset.insert, input.selectionStart, input.selectionEnd, 'end');
+            lastTab = '';
+        } else if (button.dataset.key === 'Tab') doTab();
+        else if (button.dataset.key === 'Up') recall(-1);
+        else if (button.dataset.key === 'Down') recall(1);
+        else if (button.dataset.key === 'Ctrl+C') {
+            if (session.running) stop();
+            else interruptInput();
         }
+        if (!session.running) input.focus();
     });
 
     term.addEventListener('click', function () {
