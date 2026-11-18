@@ -2,10 +2,26 @@
     <main class="wrap">
         <section class="page-head">
             <h1>Linux, <span class="grad">নিজের হাতে</span> শিখুন</h1>
-            <p>ব্রাউজারে নকল terminal। command চালান, প্রতিটার বাংলা ব্যাখ্যা পান, ভুল করলে Undo করুন।</p>
+            <p>ব্রাউজারে নকল terminal। command চালান, প্রতিটার বাংলা ব্যাখ্যা পান, ভুল করলে Undo করুন। কিছু install করতে হয় না।</p>
         </section>
-        <section class="card soon">
-            <p>কাজ চলছে। শীঘ্রই এখানে terminal আসবে।</p>
+
+        <section class="card term-card" aria-label="Terminal">
+            <div class="term" id="term">
+                <div class="term-out" id="term-out" role="log" aria-live="polite"></div>
+                <form class="term-form" id="term-form" autocomplete="off">
+                    <label class="term-label" for="term-input">
+                        <span class="prompt" id="term-prompt"></span>
+                    </label>
+                    <input id="term-input" class="term-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="command লিখুন">
+                </form>
+            </div>
+            <p class="term-notice" id="term-notice" hidden></p>
+            <div class="term-actions">
+                <button class="btn" type="button" id="btn-undo" disabled>Undo</button>
+                <button class="btn" type="button" id="btn-reset">শুরু থেকে</button>
+                <span class="term-hint">Tab = নাম পূরণ · ↑ ↓ = আগের command · Ctrl+L = পর্দা পরিষ্কার</span>
+            </div>
+            <noscript><p class="term-notice">এই simulator চালাতে JavaScript লাগে।</p></noscript>
         </section>
     </main>
 </template>
