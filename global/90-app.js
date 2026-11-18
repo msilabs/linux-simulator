@@ -37,6 +37,16 @@
     var previewText = document.getElementById('preview-text');
     var previewClose = document.getElementById('preview-close');
     var keybar = document.getElementById('keybar');
+    var Missions = window.LinuxMissions;
+    var missionNo = document.getElementById('mission-no');
+    var missionTitle = document.getElementById('mission-title');
+    var missionCount = document.getElementById('mission-count');
+    var missionFill = document.getElementById('mission-fill');
+    var missionGoal = document.getElementById('mission-goal');
+    var stagesEl = document.getElementById('stages');
+    var currentStageEl = document.getElementById('current-stage');
+    var missionHint = document.getElementById('mission-hint');
+    var missionList = document.getElementById('mission-list');
 
     var session;
     var historyIndex = -1;
@@ -105,6 +115,79 @@
         fillRich(body, line.text);
         el.appendChild(body);
         return el;
+    }
+
+    /* ---------- mission ---------- */
+
+    function bn(n) {
+        return String(n).replace(/\d/g, function (d) { return '০১২৩৪৫৬৭৮৯'.charAt(d); });
+    }
+
+    function stageItem(stage, i, withButton) {
+        var li = document.createElement('li');
+        li.className = 'stage' + (stage.done ? ' done' : '') + (stage.current ? ' current' : '');
+        var mark = document.createElement('span');
+        mark.className = 'mark';
+        mark.textContent = stage.done ? '✓' : bn(i + 1);
+        var label = document.createElement('span');
+        label.className = 'label';
+        fillRich(label, stage.label);
+        li.appendChild(mark);
+        li.appendChild(label);
+        if (withButton) {
+            var go = document.createElement('button');
+            go.type = 'button';
+            go.className = 'btn small stage-run';
+            go.textContent = 'চালান';
+            go.title = stage.command;
+            go.disabled = !!session.running || !!session.editing;
+            go.addEventListener('click', function () { run(stage.command); input.focus(); });
+            li.appendChild(go);
+        }
+        return li;
+    }
+
+    function renderMission() {
+        var view = Missions.view(session.step);
+        missionFill.style.width = Math.round(view.doneSteps / view.totalSteps * 100) + '%';
+        missionList.textContent = '';
+        view.all.forEach(function (m) {
+            var li = document.createElement('li');
+            li.className = m.done ? 'done' : m.current ? 'current' : '';
+            li.textContent = (m.done ? '✓ ' : '') + m.title;
+            missionList.appendChild(li);
+        });
+        stagesEl.textContent = '';
+        currentStageEl.textContent = '';
+        missionGoal.textContent = '';
+        missionHint.hidden = true;
+
+        if (view.finished) {
+            missionNo.textContent = 'শেষ';
+            missionTitle.textContent = 'সব mission শেষ, অভিনন্দন!';
+            missionCount.textContent = bn(view.count) + '/' + bn(view.count);
+            fillRich(missionGoal, 'এখন নিজের মতো করে যা খুশি চালিয়ে দেখুন। আটকে গেলে `man command` লিখে বাংলা manual পড়ুন।');
+            return;
+        }
+
+        missionNo.textContent = 'Mission ' + bn(view.number);
+        missionTitle.textContent = view.title;
+        missionCount.textContent = bn(view.number) + '/' + bn(view.count);
+        fillRich(missionGoal, view.goal);
+        view.stages.forEach(function (stage, i) {
+            stagesEl.appendChild(stageItem(stage, i, false));
+            if (!stage.current) return;
+            var step = stageItem(stage, i, true);
+            var total = document.createElement('span');
+            total.className = 'of';
+            total.textContent = 'ধাপ ' + bn(i + 1) + '/' + bn(view.stages.length);
+            step.insertBefore(total, step.querySelector('.label'));
+            currentStageEl.appendChild(step);
+            if (stage.hint) {
+                fillRich(missionHint, stage.hint);
+                missionHint.hidden = false;
+            }
+        });
     }
 
     /* ---------- file tree ---------- */
@@ -227,6 +310,7 @@
         runningBar.hidden = !session.running;
         if (session.running) runningName.textContent = session.running.name;
         renderTree();
+        renderMission();
         if (session.editing && editor.hidden) openEditor();
         if (!session.editing && !editor.hidden) closeEditor();
         term.scrollTop = term.scrollHeight;

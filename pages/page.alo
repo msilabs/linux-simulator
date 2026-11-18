@@ -5,6 +5,32 @@
             <p>ব্রাউজারে নকল terminal। command চালান, প্রতিটার বাংলা ব্যাখ্যা পান, ভুল করলে Undo করুন। কিছু install করতে হয় না।</p>
         </section>
 
+        <section class="card mission" id="mission" aria-label="Mission">
+            <div class="mission-top">
+                <div class="mission-title">
+                    <span class="mission-no" id="mission-no"></span>
+                    <h2 id="mission-title"></h2>
+                </div>
+                <div class="mission-progress">
+                    <span id="mission-count"></span>
+                    <div class="bar" aria-hidden="true"><i id="mission-fill"></i></div>
+                </div>
+            </div>
+            <p class="mission-goal" id="mission-goal"></p>
+            <div class="current-stage" id="current-stage"></div>
+            <p class="mission-hint" id="mission-hint" hidden></p>
+            <div class="mission-more">
+                <details class="mission-all">
+                    <summary>এই mission-এর সব ধাপ</summary>
+                    <ol class="stages" id="stages"></ol>
+                </details>
+                <details class="mission-all">
+                    <summary>সব mission</summary>
+                    <ol id="mission-list"></ol>
+                </details>
+            </div>
+        </section>
+
         <div class="app">
             <section class="card term-card" aria-label="Terminal">
                 <div class="term" id="term">

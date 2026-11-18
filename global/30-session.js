@@ -71,7 +71,7 @@
         if (result.stderr) lines.push(line('error', trimEnd(result.stderr)));
         if (result.explain) lines.push(line(result.explainError ? 'explain-error' : 'explain', result.explain));
 
-        var step = Missions.nextStep(s.step, { prev: s.state, next: result.state, command: command, ok: result.code === 0, stdout: result.stdout });
+        var step = Missions.nextStep(s.step, { prev: s.state, next: result.state, command: command, ok: result.code === 0, stdout: result.stdout, stderr: result.stderr, errno: result.errno, waiting: !!result.waiting });
         var before = Missions.missionAt(s.step).index;
         var after = Missions.missionAt(step).index;
         if (after > before) {
@@ -99,11 +99,17 @@
     function stopRunning(s) {
         if (!s.running) return s;
         var id = s.nextId;
+        var step = Missions.nextStep(s.step, { prev: s.state, next: s.state, command: s.running.command, ok: true, stdout: '', stderr: '', waiting: false, stopped: true });
         var lines = s.lines.concat([
             { id: id, kind: 'output', text: '^C' },
             { id: id + 1, kind: 'explain', text: Text.stopped }
         ]);
-        return Object.assign({}, s, { running: null, status: 130, lines: lines.slice(-MAX_LINES), nextId: id + 2 });
+        var finished = Missions.missionAt(s.step).index;
+        if (Missions.missionAt(step).index > finished) {
+            var upcoming = Missions.MISSIONS[Missions.missionAt(step).index];
+            lines.push({ id: id + 2, kind: 'welcome', text: Text.missionDone(Missions.MISSIONS[finished].title, finished + 2, upcoming ? upcoming.title : null) });
+        }
+        return Object.assign({}, s, { running: null, step: step, status: 130, lines: lines.slice(-MAX_LINES), nextId: id + (lines.length - s.lines.length) });
     }
 
     // editor থেকে সেভ। ভুল হলে editor খোলা থাকে আর error ফেরত আসে।
@@ -177,7 +183,7 @@
             status = result.code;
             if (!stateChanged(state, result.state)) return;
             past.push({ state: state, step: step, command: command });
-            step = Missions.nextStep(step, { prev: state, next: result.state, command: command, ok: result.code === 0, stdout: result.stdout });
+            step = Missions.nextStep(step, { prev: state, next: result.state, command: command, ok: result.code === 0, stdout: result.stdout, stderr: result.stderr, errno: result.errno, waiting: !!result.waiting });
             kept.push(command);
             state = result.state;
         });
