@@ -1,0 +1,35 @@
+{
+    "name": "linux-simulator",
+    "private": true,
+    "description": "ব্রাউজারে নকল Linux terminal: নিজের হাতে command চালান, প্রতিটার বাংলা ব্যাখ্যা পান, ১১টা mission শেষ করুন",
+    "license": "MIT",
+    "author": "msilabs",
+    "homepage": "https://msilabs.github.io/linux-simulator/",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/msilabs/linux-simulator.git"
+    },
+    "bugs": {
+        "url": "https://github.com/msilabs/linux-simulator/issues"
+    },
+    "keywords": [
+        "linux",
+        "terminal",
+        "shell",
+        "simulator",
+        "bangla",
+        "bengali",
+        "learning"
+    ],
+    "engines": {
+        "node": ">=22"
+    },
+    "scripts": {
+        "dev": "alo dev",
+        "build": "alo build",
+        "test": "node --test tests/*.test.mjs"
+    },
+    "devDependencies": {
+        "@msilabs/alo": "^1.2.2"
+    }
+}

@@ -1,0 +1,11 @@
+<template>
+    <main class="wrap">
+        <section class="page-head">
+            <h1>Linux, <span class="grad">নিজের হাতে</span> শিখুন</h1>
+            <p>ব্রাউজারে নকল terminal। command চালান, প্রতিটার বাংলা ব্যাখ্যা পান, ভুল করলে Undo করুন।</p>
+        </section>
+        <section class="card soon">
+            <p>কাজ চলছে। শীঘ্রই এখানে terminal আসবে।</p>
+        </section>
+    </main>
+</template>
