@@ -52,7 +52,7 @@ test('a finished mission announces the next one', () => {
     const last = s.lines[s.lines.length - 1];
     assert.equal(last.kind, 'welcome');
     assert.match(last.text, /"কোথায় আছি\?" শেষ/);
-    assert.match(last.text, /mission 2: নতুন প্রজেক্ট/);
+    assert.match(last.text, /mission ২: নতুন প্রজেক্ট/);
 });
 
 test('the last mission ends with congratulations', () => {
@@ -137,7 +137,7 @@ test('mission 9: the polite kill leaves the process, and Ctrl+C finishes the las
     assert.equal(s.step, at + 4, 'starting tail -f is not enough, you must leave it');
     s = Session.stopRunning(s);
     assert.equal(s.step, at + 5);
-    assert.match(s.lines.filter((l) => l.kind === 'welcome').pop().text, /mission 10/);
+    assert.match(s.lines.filter((l) => l.kind === 'welcome').pop().text, /mission ১০/);
 });
 
 test('mission 9: sleep and Ctrl+C is not the same as tail -f', () => {
