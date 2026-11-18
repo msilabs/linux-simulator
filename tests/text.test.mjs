@@ -285,3 +285,10 @@ test('grep with no match is not shown as a problem on screen', () => {
     assert.equal(Shell.run(state, 'ls nope').explainError, true);
     assert.equal(Shell.run(state, 'ls').explainError, false);
 });
+
+test('errors inside a script say which script and line, like bash', () => {
+    const r = runAll(['echo "ls nope\nfrob" > s.sh', 'chmod +x s.sh', './s.sh']);
+    assert.equal(r.outputs[2].stderr, "ls: cannot access 'nope': No such file or directory\n./s.sh: line 2: frob: command not found\n");
+    const withCd = runAll(['echo "cd nodir" > t.sh', 'chmod +x t.sh', './t.sh']);
+    assert.equal(withCd.outputs[2].stderr, './t.sh: line 1: cd: nodir: No such file or directory\n');
+});

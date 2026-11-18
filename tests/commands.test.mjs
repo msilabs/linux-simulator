@@ -54,7 +54,7 @@ test('ls: bad option', () => {
 test('mkdir: -p, existing, missing parent, verbose', () => {
     const r = runAll(['mkdir a', 'mkdir -p a/b/c', 'mkdir a', 'mkdir x/y', 'mkdir -p a', 'mkdir -v z']);
     assert.equal(r.outputs[0].code, 0);
-    assert.equal(r.outputs[2].stderr, "mkdir: cannot create directory 'a': File exists\n");
+    assert.equal(r.outputs[2].stderr, 'mkdir: a: File exists\n');
     assert.equal(r.outputs[3].stderr, "mkdir: cannot create directory 'x/y': No such file or directory\n");
     assert.equal(r.outputs[4].code, 0);
     assert.equal(r.outputs[5].stdout, "mkdir: created directory 'z'\n");

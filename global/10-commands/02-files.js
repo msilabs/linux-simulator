@@ -41,7 +41,7 @@
                 var existing = Fs.lookup(state.fs, user, abs);
                 if (!existing.error) {
                     if (parsed.flags.p && existing.node.kind === 'dir') return;
-                    err += "mkdir: cannot create directory '" + operand + "': File exists\n";
+                    err += 'mkdir: ' + operand + ': File exists\n';
                     errno = errno || 'EEXIST';
                     return;
                 }

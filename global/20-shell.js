@@ -90,11 +90,13 @@
         var err = '';
         var code = 0;
         var inner = Object.assign({}, env, { depth: env.depth + 1 });
-        H.splitLines(node.content).forEach(function (line) {
+        // script-এর ভেতরের shell-এর error আসল bash-এর মতো `./নাম: line ৩: ...` দিয়ে শুরু হয়
+        node.content.split('\n').forEach(function (line, index, all) {
+            if (index === all.length - 1 && line === '') return;
             var r = execLine(state, line, Object.assign({}, inner, { status: code }));
             state = r.state;
             out += r.stdout;
-            err += r.stderr;
+            err += r.stderr.replace(/^bash: /gm, shown + ': line ' + (index + 1) + ': ');
             code = r.code;
         });
         // script আলাদা process: cd, export, alias বাইরে পৌঁছায় না
