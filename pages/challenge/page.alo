@@ -1,15 +1,15 @@
 <head>
     <title>Challenge · {{ data.site.name }}</title>
-    <meta name="description" content="Linux terminal-এর {{ data.challenges.length.toLocaleString('bn-BD') }}টা challenge। ফোল্ডারে যাওয়া থেকে শুরু করে log ঘেঁটে সমস্যা খোঁজা পর্যন্ত, নিজে command লিখে সমাধান করুন।">
+    <meta name="description" content="Linux terminal-এর {{ data.challenges.length.toLocaleString('bn-BD') }}টা challenge। ফোল্ডারে যাওয়া থেকে শুরু করে log পড়ে সমস্যা খোঁজা পর্যন্ত, নিজে command লিখে সমাধান করুন।">
     <meta property="og:title" content="Challenge · {{ data.site.name }}">
-    <meta property="og:description" content="Linux terminal-এর {{ data.challenges.length.toLocaleString('bn-BD') }}টা challenge। ফোল্ডারে যাওয়া থেকে শুরু করে log ঘেঁটে সমস্যা খোঁজা পর্যন্ত, নিজে command লিখে সমাধান করুন।">
+    <meta property="og:description" content="Linux terminal-এর {{ data.challenges.length.toLocaleString('bn-BD') }}টা challenge। ফোল্ডারে যাওয়া থেকে শুরু করে log পড়ে সমস্যা খোঁজা পর্যন্ত, নিজে command লিখে সমাধান করুন।">
 </head>
 
 <template>
 <main class="wrap" id="challengeApp" data-json="{{ JSON.stringify(data.challenges.map((c, i) => ({ id: (c.slug || String(i + 1)).replace(/^\d+-/, ''), title: c.title, level: c.level, task: c.task, setup: c.setup, checks: c.checks, hint: c.hint, solution: c.solution }))) }}">
   <section class="page-head">
-    <h1>নিজে করে <span class="grad">যাচাই করুন</span></h1>
-    <p>{{ data.challenges.length.toLocaleString('bn-BD') }}টা challenge, সহজ থেকে কঠিন। কী করতে হবে বলা আছে, কোন command লাগবে তা বলা নেই। প্রতিটা command-এর পরে নিজে থেকে যাচাই হয়। অগ্রগতি শুধু আপনার browser-এ থাকে।</p>
+    <h1>নিজে করে <span class="grad">দেখে নিন</span></h1>
+    <p>{{ data.challenges.length.toLocaleString('bn-BD') }}টা challenge, সহজ থেকে কঠিন। কী করতে হবে বলা আছে, কোন command লাগবে তা বলা নেই। প্রতিটা command-এর পরে নিজে থেকে যাচাই হয়। progress শুধু আপনার browser-এ থাকে।</p>
   </section>
 
   <div class="side-layout">
@@ -17,7 +17,7 @@
       <div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
       <p class="progress-text" id="progressText"></p>
       <div id="chList"></div>
-      <button type="button" class="reset-link" id="chReset">অগ্রগতি মুছুন</button>
+      <button type="button" class="reset-link" id="chReset">progress মুছুন</button>
     </aside>
 
     <section class="ch-main">
@@ -31,7 +31,7 @@
         <div class="ch-checks" id="chChecks" aria-live="polite"></div>
         <div class="ch-result" id="chResult" hidden></div>
         <div class="ch-buttons">
-          <button type="button" class="btn small" id="chHint">ইঙ্গিত</button>
+          <button type="button" class="btn small" id="chHint">hint</button>
           <button type="button" class="btn small" id="chSolution">উত্তর দেখুন</button>
           <span class="spacer"></span>
           <button type="button" class="btn small primary" id="chNext" hidden>পরের challenge →</button>
@@ -199,7 +199,7 @@
     });
     $('chNext').addEventListener('click', function () { load(Math.min(list.length - 1, current + 1)); terminal.focus(); });
     $('chReset').addEventListener('click', function () {
-        if (!window.confirm('সব challenge-এর অগ্রগতি মুছে যাবে। নিশ্চিত?')) return;
+        if (!window.confirm('সব challenge-এর progress মুছে যাবে। নিশ্চিত?')) return;
         progress = { done: [] };
         save();
         load(0);

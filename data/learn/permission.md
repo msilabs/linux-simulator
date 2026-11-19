@@ -1,10 +1,10 @@
 ---
-title: অধিকার: rwx, chmod আর script চালানো
+title: অনুমতি: rwx, chmod আর script চালানো
 order: 13
 summary: কে পড়তে, লিখতে আর চালাতে পারবে, আর সেটা কীভাবে বদলায়।
 ---
 
-Linux-এ প্রতিটা ফাইলে তিন রকম অধিকার থাকে:
+Linux-এ প্রতিটা ফাইলে তিন রকম অনুমতি থাকে:
 
 - `r` (read): পড়া।
 - `w` (write): বদলানো বা লেখা।
@@ -31,7 +31,7 @@ $ ls -l scripts
 
 ## script চালাতে x লাগে
 
-`backup.sh`-এ `x` নেই, তাই চালাতে গেলে `Permission denied` আসে। `chmod +x` দিয়ে অধিকার দিলে চলে।
+`backup.sh`-এ `x` নেই, তাই চালাতে গেলে `Permission denied` আসে। `chmod +x` দিয়ে অনুমতি দিলে চলে।
 
 ```terminal
 $ cd scripts
@@ -56,4 +56,4 @@ $ chmod 600 notes.txt
 $ ls -l notes.txt
 ```
 
-`chmod 777` সবাইকে সব অধিকার দেয়। এটা চলে, কিন্তু server-এ বড় নিরাপত্তার ঝুঁকি। এই simulator সেটা নিয়ে সতর্ক করে।
+`chmod 777` সবাইকে সব অনুমতি দেয়। এটা চলে, কিন্তু server-এ বড় নিরাপত্তার ঝুঁকি। এই simulator সেটা নিয়ে সতর্ক করে।

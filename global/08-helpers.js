@@ -82,7 +82,7 @@
         return { flags: flags, operands: operands };
     }
 
-    // নতুন entry বানানোর আগে parent ঠিক আছে কিনা: ফোল্ডার, আর তাতে w আর x অধিকার
+    // নতুন entry বানানোর আগে parent ঠিক আছে কিনা: ফোল্ডার, আর তাতে w আর x অনুমতি
     function checkParent(state, abs) {
         var user = userOf(state);
         var parent = Fs.lookup(state.fs, user, Path.dirname(abs));

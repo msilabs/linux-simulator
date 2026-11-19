@@ -13,7 +13,7 @@
     <a class="cta" href="/learn/{{ data.learn.find((l) => l.order === 1).slug }}/">প্রথম পাঠ শুরু করুন <span class="cta-arrow" aria-hidden="true">→</span></a>
   </section>
 
-  <template for="stage in [{ name: 'শুরু', note: 'terminal, ফোল্ডারে চলাফেরা আর ফাইলের কাজ', from: 1, to: 6 }, { name: 'পরের ধাপ', note: 'খোঁজা, redirect আর pipe', from: 7, to: 12 }, { name: 'গভীরে', note: 'অধিকার, user, process আর shell সাজানো', from: 13, to: 99 }]">
+  <template for="stage in [{ name: 'শুরু', note: 'terminal, ফোল্ডারে চলাফেরা আর ফাইলের কাজ', from: 1, to: 6 }, { name: 'পরের ধাপ', note: 'খোঁজা, redirect আর pipe', from: 7, to: 12 }, { name: 'গভীরে', note: 'অনুমতি, user, process আর shell সাজানো', from: 13, to: 99 }]">
     <section class="stage">
       <div class="stage-head">
         <h2 class="section-title">{{ stage.name }}</h2>

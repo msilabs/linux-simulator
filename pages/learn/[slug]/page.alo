@@ -26,7 +26,7 @@
           </a>
         </template>
         <template else>
-          <a class="pager-link next" href="/challenge/"><small>সব পাঠ শেষ →</small>এবার Challenge-এ নিজেকে যাচাই করুন</a>
+          <a class="pager-link next" href="/challenge/"><small>সব পাঠ শেষ →</small>এবার Challenge-এ নিজেকে পরীক্ষা করুন</a>
         </template>
       </nav>
     </article>

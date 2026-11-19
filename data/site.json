@@ -1,7 +1,7 @@
 {
     "name": "Linux Simulator",
     "tagline": "বাংলায় Linux terminal শেখার জায়গা",
-    "description": "ব্রাউজারে নকল Linux terminal। cd, ls, grep, chmod আর pipe নিজের হাতে চালান, প্রতিটা command-এর বাংলা ব্যাখ্যা পান। ১৬টা ছোট পাঠে শুরু থেকে শিখুন, তারপর ১৫টা challenge-এ নিজেকে যাচাই করুন। কিছু install করতে হয় না, ভুল করলে Undo আছে।",
+    "description": "ব্রাউজারে নকল Linux terminal। cd, ls, grep, chmod আর pipe নিজের হাতে চালান, প্রতিটা command-এর বাংলা ব্যাখ্যা পান। ১৬টা ছোট পাঠে শুরু থেকে শিখুন, তারপর ১৫টা challenge-এ নিজেকে পরীক্ষা করুন। কিছু install করতে হয় না, ভুল করলে Undo আছে।",
     "lang": "bn",
     "url": "https://msilabs.github.io",
     "repo": "https://github.com/msilabs/linux-simulator"

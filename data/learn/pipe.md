@@ -34,7 +34,7 @@ $ cut -d' ' -f1 /var/log/nginx/access.log | sort | uniq -c | sort -rn
 
 ধাপগুলো: `cut` IP কাটল → `sort` একই IP পাশাপাশি আনল → `uniq -c` গুনল → `sort -rn` বেশি থেকে কমে সাজাল।
 
-একই ধাঁচে status code (৯ নম্বর অংশ) গোনা:
+একই নিয়মে status code (৯ নম্বর অংশ) গোনা:
 
 ```terminal
 $ cut -d' ' -f9 /var/log/nginx/access.log | sort | uniq -c

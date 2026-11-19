@@ -1,4 +1,4 @@
-// head, tail, wc, grep, find, sort, uniq, cut, less: লেখা পড়া, ছাঁকা আর গোনা
+// head, tail, wc, grep, find, sort, uniq, cut, less: লেখা পড়া, খোঁজা আর গোনা
 (function (root) {
     var isNode = typeof module !== 'undefined' && module.exports;
     var Path = isNode ? require('../01-path.js') : root.LinuxPath;

@@ -7,7 +7,7 @@
         notSupported: function (what) { return what + ' এই simulator-এ নেই। আসল Linux-এ এটা চলে, তবে শেখার জন্য এখানে বাদ রাখা হয়েছে।'; },
         fileSaved: function (path) { return '`' + path + '` সেভ হয়েছে। `cat` দিয়ে দেখুন।'; },
         stopped: 'Ctrl+C চলতে থাকা program-কে থামতে বলে (আসলে SIGINT signal পাঠায়)। কোনো program আটকে গেলে বা শেষ হচ্ছে না মনে হলে এটাই প্রথম চেষ্টা।',
-        saveFailed: 'এই browser-এ অগ্রগতি সেভ করা যাচ্ছে না (হয়তো private window)। পেজ রিলোড করলে সব হারাবে।',
+        saveFailed: 'এই browser-এ progress সেভ করা যাচ্ছে না (হয়তো private window)। পেজ রিলোড করলে সব হারাবে।',
         corruptSave: 'আগের সেভ করা অবস্থা পড়া যায়নি, তাই নতুন করে শুরু হলো।'
     };
 

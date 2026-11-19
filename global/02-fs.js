@@ -47,7 +47,7 @@
         return Path.resolve(Path.dirname(linkPath), node.target, '/');
     }
 
-    // path-এর শেষ node-টা, আর কোথাও আটকালে error। ফোল্ডার পেরোতে `x` অধিকার লাগে।
+    // path-এর শেষ node-টা, আর কোথাও আটকালে error। ফোল্ডার পেরোতে `x` অনুমতি লাগে।
     // মাঝের symlink সবসময় অনুসরণ হয়; শেষেরটা অনুসরণ হয় না যদি followFinal === false (ls -l, rm-এর মতো)।
     // result: { node, path } অথবা { error: 'ENOENT' | 'ENOTDIR' | 'EACCES' | 'ELOOP', path }
     function lookup(fs, user, abs, followFinal, depth) {
@@ -118,7 +118,7 @@
         return walk(fs, 0);
     }
 
-    // Ubuntu-র (glibc ২.২৮-এর পরের) en_US ক্রমের মতো: বড়-ছোট হাতের ভেদ প্রথমে ধরা হয় না,
+    // Ubuntu-র (glibc ২.২৮-এর পরের) en_US ক্রমের মতো: বড় হাতের আর ছোট হাতের অক্ষরের তফাত প্রথমে ধরা হয় না,
     // চিহ্ন (. - _ ইত্যাদি) আগে, তারপর অঙ্ক, তারপর অক্ষর। সব এক হলে ছোট হাতের অক্ষর আগে।
     function weight(c) {
         if (/[0-9]/.test(c)) return 1;

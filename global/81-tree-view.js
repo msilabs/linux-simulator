@@ -1,5 +1,5 @@
 // DOM: পাশের ফাইল গাছ। LinuxTreeView.mount(root, getState, options) root-এর ভেতরে গাছ বানায়, ফেরত দেয় { render, reset }।
-// options.perms === false হলে শুরুতে অধিকারের কলাম বন্ধ থাকে (সরু জায়গার জন্য)।
+// options.perms === false হলে শুরুতে অনুমতিের কলাম বন্ধ থাকে (সরু জায়গার জন্য)।
 // নতুন আর বদলানো জিনিস কিছুক্ষণ রঙিন থাকে, মোছা জিনিসের নাম ছোট বার্তায় আসে।
 (function () {
     if (typeof document === 'undefined') return;
@@ -8,7 +8,7 @@
     var Fs = window.LinuxFs;
 
     var TEMPLATE = '<div class="tree-head"><h2>ফাইল</h2><div class="tree-opts">'
-        + '<label><input type="checkbox" class="tree-perms" checked> অধিকার</label>'
+        + '<label><input type="checkbox" class="tree-perms" checked> অনুমতি</label>'
         + '<label><input type="checkbox" class="tree-hidden" checked> লুকানো</label>'
         + '</div></div>'
         + '<div class="tree" role="tree" aria-label="ফাইলের গাছ"></div>'
@@ -64,7 +64,7 @@
             if (!node || node.kind === 'dir') return;
             previewName.textContent = row.path;
             var text = node.kind === 'link' ? '→ ' + node.target : node.content;
-            previewText.textContent = !Fs.can(node, user, 'r') ? '(পড়ার অধিকার নেই)' : text.length > 4000 ? text.slice(0, 4000) + '\n…' : text || '(ফাইল খালি)';
+            previewText.textContent = !Fs.can(node, user, 'r') ? '(পড়ার অনুমতি নেই)' : text.length > 4000 ? text.slice(0, 4000) + '\n…' : text || '(ফাইল খালি)';
             preview.hidden = false;
         }
 

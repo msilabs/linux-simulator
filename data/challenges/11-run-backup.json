@@ -10,7 +10,7 @@
             "label": "`/tmp/backup`-এ নোটের কপি আছে"
         }
     ],
-    "hint": "`Permission denied` এলে `ls -l` দিয়ে দেখুন `x` আছে কিনা। চালানোর অধিকার দেয় `chmod +x`। চালাতে `./backup.sh` বা পুরো path লিখুন।",
+    "hint": "`Permission denied` এলে `ls -l` দিয়ে দেখুন `x` আছে কিনা। চালানোর অনুমতি দেয় `chmod +x`। চালাতে `./backup.sh` বা পুরো path লিখুন।",
     "solution": "chmod +x ~/scripts/backup.sh && ~/scripts/backup.sh",
     "alternatives": [
         "cd ~/scripts && chmod +x backup.sh && ./backup.sh",

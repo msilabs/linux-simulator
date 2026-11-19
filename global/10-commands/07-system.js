@@ -175,13 +175,13 @@
     /* ---------- ln ---------- */
 
     Registry.register('ln', {
-        desc: 'অন্য ফাইলের শর্টকাট (symbolic link) বানায়: ln -s লক্ষ্য নাম',
+        desc: 'অন্য ফাইলের শর্টকাট (symbolic link) বানায়: ln -s আসল-ফাইল নাম',
         run: function (ctx) {
             var state = ctx.state;
             var user = H.userOf(state);
             var parsed = H.parseFlags(ctx.args, { name: 'ln', flags: 'sf' });
             if (parsed.error) return H.fail(state, parsed.error, 1, 'EOPT');
-            if (!parsed.flags.s) return H.fail(state, 'ln: এই simulator-এ শুধু symbolic link চলে: ln -s লক্ষ্য নাম\n', 1, 'EUNSUPPORTED');
+            if (!parsed.flags.s) return H.fail(state, 'ln: এই simulator-এ শুধু symbolic link চলে: ln -s আসল-ফাইল নাম\n', 1, 'EUNSUPPORTED');
             if (!parsed.operands.length) return H.fail(state, "ln: missing file operand\nTry 'ln --help' for more information.\n", 1, 'EOPERAND');
             var target = parsed.operands[0];
             var linkName = parsed.operands[1] || Path.basename(target);

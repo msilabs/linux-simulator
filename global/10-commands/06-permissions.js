@@ -68,7 +68,7 @@
     }
 
     Registry.register('chmod', {
-        desc: 'ফাইলের অধিকার (পড়া, লেখা, চালানো) বদলায়',
+        desc: 'ফাইলের অনুমতি (পড়া, লেখা, চালানো) বদলায়',
         run: function (ctx) {
             var state = ctx.state;
             var user = H.userOf(state);

@@ -64,7 +64,7 @@
             }
         },
         mode: {
-            label: function (c) { return '`' + c.path + '`-এর অধিকার `' + c.mode + '`'; },
+            label: function (c) { return '`' + c.path + '`-এর অনুমতি `' + c.mode + '`'; },
             test: function (c, s) {
                 var n = node(s.state, c.path);
                 return !!n && (n.meta.mode & 0o777) === parseInt(c.mode, 8);

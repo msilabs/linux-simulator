@@ -277,7 +277,7 @@ test('storage: file saves survive save and load', () => {
 });
 
 test('explanations for the new commands', () => {
-    assert.match(last(['chmod +x scripts/backup.sh']).explain, /চালানোর \(x\) অধিকার যোগ/);
+    assert.match(last(['chmod +x scripts/backup.sh']).explain, /চালানোর \(x\) অনুমতি যোগ/);
     assert.match(last(['chmod 755 notes.txt']).explain, /৭ = rwx.*৫ = r-x.*৫ = r-x/);
     assert.match(last(['chmod 777 notes.txt']).explain, /সাবধান/);
     assert.doesNotMatch(last(['chmod 644 notes.txt']).explain, /সাবধান/);

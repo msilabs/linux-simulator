@@ -1,7 +1,7 @@
 // DOM: একটা terminal বসানো। একই পেজে অনেকগুলো চলতে পারে (পাঠের ভেতরের ছোট বাক্স)।
 // LinuxTerminal.mount(root, options) root-এর ভেতরে পুরো terminal বানায়।
 //   options.session    শুরুর session
-//   options.compact    ছোট মাপ: key bar আর নিচের ইঙ্গিত থাকে না
+//   options.compact    ছোট মাপ: key bar আর নিচের hint থাকে না
 //   options.onCommit   state বা পর্দা বদলানো কাজের পরে (সেভ, যাচাই)
 //   options.onRender   প্রতিবার আঁকার পরে (file tree)
 //   options.onReset    "শুরু থেকে" চাপলে নতুন session ফেরত দেয়
@@ -179,7 +179,7 @@
             editorEl('text').value = edit.content;
             editorEl('text').readOnly = !edit.writable;
             editorEl('save').disabled = !edit.writable;
-            editorEl('state').textContent = !edit.writable ? 'শুধু পড়া যাবে, লেখার অধিকার নেই' : edit.exists ? '' : 'নতুন ফাইল';
+            editorEl('state').textContent = !edit.writable ? 'শুধু পড়া যাবে, লেখার অনুমতি নেই' : edit.exists ? '' : 'নতুন ফাইল';
             editorEl('error').hidden = true;
             editor.hidden = false;
             editorEl('text').focus();
