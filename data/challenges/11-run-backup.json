@@ -1,0 +1,19 @@
+{
+    "title": "backup script চালান",
+    "level": "কঠিন",
+    "task": "`~/scripts/backup.sh` script-টা চালান। এটা `/tmp/backup`-এ আপনার নোট আর প্রজেক্টের কপি রাখে। প্রথমবার চালাতে গেলে একটা বাধা আসবে।",
+    "setup": [],
+    "checks": [
+        {
+            "type": "exists",
+            "path": "/tmp/backup/notes.txt",
+            "label": "`/tmp/backup`-এ নোটের কপি আছে"
+        }
+    ],
+    "hint": "`Permission denied` এলে `ls -l` দিয়ে দেখুন `x` আছে কিনা। চালানোর অধিকার দেয় `chmod +x`। চালাতে `./backup.sh` বা পুরো path লিখুন।",
+    "solution": "chmod +x ~/scripts/backup.sh && ~/scripts/backup.sh",
+    "alternatives": [
+        "cd ~/scripts && chmod +x backup.sh && ./backup.sh",
+        "chmod 755 scripts/backup.sh; scripts/backup.sh"
+    ]
+}

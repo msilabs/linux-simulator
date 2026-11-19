@@ -1,0 +1,30 @@
+{
+    "title": "কোন ফাইলে TODO",
+    "level": "মাঝারি",
+    "task": "কোড লেখার সময় বাকি কাজের জায়গায় `TODO` লিখে রাখা হয়েছে। `~/projects`-এর কোন কোন ফাইলে `TODO` আছে বের করুন। আউটপুটে শুধু ফাইলের নাম আসবে, লাইনগুলো না।",
+    "setup": [
+        "echo '// TODO: মেনু ঠিক করা' >> ~/projects/my-site/app.js",
+        "echo '/* TODO: dark mode */' >> ~/projects/my-site/style.css"
+    ],
+    "checks": [
+        {
+            "type": "stdout",
+            "contains": "my-site/app.js"
+        },
+        {
+            "type": "stdout",
+            "contains": "my-site/style.css"
+        },
+        {
+            "type": "stdout",
+            "notContains": "TODO",
+            "label": "শুধু ফাইলের নাম, লাইনের লেখা না"
+        }
+    ],
+    "hint": "`grep -r` ফোল্ডারের ভেতরের সব ফাইলে খোঁজে। শুধু ফাইলের নাম দেখানোর option-টা `man grep`-এ আছে।",
+    "solution": "grep -rl TODO ~/projects",
+    "alternatives": [
+        "grep -lr TODO projects",
+        "cd projects && grep -rl TODO ."
+    ]
+}

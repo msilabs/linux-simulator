@@ -1,0 +1,19 @@
+{
+    "title": "নোটে কয় লাইন",
+    "level": "সহজ",
+    "task": "`notes.txt`-এ কয়টা লাইন আছে বের করুন। আউটপুটে শুধু সংখ্যাটা আসবে, ফাইলের নাম না।",
+    "setup": [],
+    "checks": [
+        {
+            "type": "stdout",
+            "equals": "4",
+            "label": "আউটপুটে শুধু সঠিক সংখ্যা"
+        }
+    ],
+    "hint": "`wc -l notes.txt` সংখ্যার পাশে ফাইলের নামও দেখায়। ফাইলটা `<` দিয়ে বা pipe দিয়ে দিলে শুধু সংখ্যা আসে।",
+    "solution": "wc -l < notes.txt",
+    "alternatives": [
+        "cat notes.txt | wc -l",
+        "cat ~/notes.txt | wc -l"
+    ]
+}

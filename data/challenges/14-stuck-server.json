@@ -1,0 +1,18 @@
+{
+    "title": "আটকে থাকা server থামান",
+    "level": "কঠিন",
+    "task": "laptop হঠাৎ ধীর হয়ে গেছে। একটা `node` process প্রায় সব CPU খেয়ে ফেলছে। সেটা খুঁজে বের করে থামান। অন্য কিছু থামাবেন না।",
+    "setup": [],
+    "checks": [
+        {
+            "type": "noProcess",
+            "cmd": "node server.js"
+        }
+    ],
+    "hint": "`ps aux | grep node` দিয়ে PID বের করুন। সাধারণ `kill PID`-এ না থামলে `kill -9 PID`।",
+    "solution": "kill -9 2301",
+    "alternatives": [
+        "kill -KILL 2301",
+        "kill -SIGKILL 2301"
+    ]
+}

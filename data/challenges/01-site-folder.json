@@ -1,0 +1,19 @@
+{
+    "title": "my-site ফোল্ডারে যান",
+    "level": "সহজ",
+    "task": "আপনার প্রজেক্টগুলো `~/projects`-এর ভেতরে থাকে। `my-site` প্রজেক্টের ফোল্ডারে ঢুকুন।",
+    "setup": [],
+    "checks": [
+        {
+            "type": "cwd",
+            "path": "~/projects/my-site"
+        }
+    ],
+    "hint": "`cd` দিয়ে ফোল্ডারে ঢোকা যায়। দুই ধাপ একবারে লেখা যায়: `cd ফোল্ডার/ভেতরের-ফোল্ডার`।",
+    "solution": "cd projects/my-site",
+    "alternatives": [
+        "cd ~/projects/my-site",
+        "cd projects && cd my-site",
+        "cd /home/dev/projects/my-site"
+    ]
+}

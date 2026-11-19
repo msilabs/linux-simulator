@@ -1,0 +1,18 @@
+{
+    "title": "কে server ভাঙছে",
+    "level": "কঠিন",
+    "task": "server-এ কিছু request-এ `500` error আসছে। `/var/log/nginx/access.log` থেকে বের করুন কোন IP থেকে সবচেয়ে বেশি `500` এসেছে। আউটপুটে শুধু সেই IP-টা থাকবে, আর কিছু না।",
+    "setup": [],
+    "checks": [
+        {
+            "type": "stdout",
+            "equals": "203.0.113.10",
+            "label": "আউটপুটে শুধু সঠিক IP"
+        }
+    ],
+    "hint": "ধাপে ধাপে: `grep \" 500 \"` → `cut -d' ' -f1` → `sort` → `uniq -c` → `sort -rn` → `head -n 1`। শেষে `uniq -c`-এর বসানো সংখ্যাটা বাদ দিতে হবে: সেটা প্রথম ৮টা অক্ষর জুড়ে থাকে, তাই `cut -c9-`।",
+    "solution": "grep ' 500 ' /var/log/nginx/access.log | cut -d' ' -f1 | sort | uniq -c | sort -rn | head -n 1 | cut -c9-",
+    "alternatives": [
+        "grep \" 500 \" /var/log/nginx/access.log | cut -d' ' -f1 | sort | uniq -c | sort -rn | head -1 | cut -c9-"
+    ]
+}

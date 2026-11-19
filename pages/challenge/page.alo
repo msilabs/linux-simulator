@@ -1,0 +1,210 @@
+<head>
+    <title>Challenge · {{ data.site.name }}</title>
+    <meta name="description" content="Linux terminal-এর {{ data.challenges.length.toLocaleString('bn-BD') }}টা challenge। ফোল্ডারে যাওয়া থেকে শুরু করে log ঘেঁটে সমস্যা খোঁজা পর্যন্ত, নিজে command লিখে সমাধান করুন।">
+    <meta property="og:title" content="Challenge · {{ data.site.name }}">
+    <meta property="og:description" content="Linux terminal-এর {{ data.challenges.length.toLocaleString('bn-BD') }}টা challenge। ফোল্ডারে যাওয়া থেকে শুরু করে log ঘেঁটে সমস্যা খোঁজা পর্যন্ত, নিজে command লিখে সমাধান করুন।">
+</head>
+
+<template>
+<main class="wrap" id="challengeApp" data-json="{{ JSON.stringify(data.challenges.map((c, i) => ({ id: (c.slug || String(i + 1)).replace(/^\d+-/, ''), title: c.title, level: c.level, task: c.task, setup: c.setup, checks: c.checks, hint: c.hint, solution: c.solution }))) }}">
+  <section class="page-head">
+    <h1>নিজে করে <span class="grad">যাচাই করুন</span></h1>
+    <p>{{ data.challenges.length.toLocaleString('bn-BD') }}টা challenge, সহজ থেকে কঠিন। কী করতে হবে বলা আছে, কোন command লাগবে তা বলা নেই। প্রতিটা command-এর পরে নিজে থেকে যাচাই হয়। অগ্রগতি শুধু আপনার browser-এ থাকে।</p>
+  </section>
+
+  <div class="side-layout">
+    <aside class="card side-list ch-aside">
+      <div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+      <p class="progress-text" id="progressText"></p>
+      <div id="chList"></div>
+      <button type="button" class="reset-link" id="chReset">অগ্রগতি মুছুন</button>
+    </aside>
+
+    <section class="ch-main">
+      <div class="card ch-panel">
+        <div class="ch-title">
+          <span class="ch-no" id="chNo"></span>
+          <h2 id="chTitle"></h2>
+          <span class="lvl" id="chLevel"></span>
+        </div>
+        <p class="ch-task" id="chTask"></p>
+        <div class="ch-checks" id="chChecks" aria-live="polite"></div>
+        <div class="ch-result" id="chResult" hidden></div>
+        <div class="ch-buttons">
+          <button type="button" class="btn small" id="chHint">ইঙ্গিত</button>
+          <button type="button" class="btn small" id="chSolution">উত্তর দেখুন</button>
+          <span class="spacer"></span>
+          <button type="button" class="btn small primary" id="chNext" hidden>পরের challenge →</button>
+        </div>
+        <div class="hint-box" id="chHintBox" hidden></div>
+        <div class="solution" id="chSolutionBox" hidden></div>
+      </div>
+
+      <div class="ch-work">
+        <section class="card term-card" id="chTerm" aria-label="Terminal"></section>
+        <aside class="card tree-card" id="chTree" aria-label="ফাইল গাছ"></aside>
+      </div>
+    </section>
+  </div>
+</main>
+</template>
+
+<script>
+(function () {
+    var app = document.getElementById('challengeApp');
+    var Challenge = window.LinuxChallenge;
+    var Terminal = window.LinuxTerminal;
+    var list = JSON.parse(app.dataset.json);
+    var KEY = 'msilabs-linux-simulator:challenges';
+    var $ = function (id) { return document.getElementById(id); };
+    var bn = Terminal.bn;
+
+    var progress = { done: [] };
+    try {
+        var saved = JSON.parse(localStorage.getItem(KEY));
+        if (saved && Array.isArray(saved.done)) progress = { done: saved.done.filter(function (id) { return typeof id === 'string'; }) };
+    } catch (e) { /* private window বা ভাঙা সেভ: নতুন করে শুরু */ }
+
+    function save() {
+        try { localStorage.setItem(KEY, JSON.stringify(progress)); } catch (e) { /* সেভ না হলেও পেজ চলে */ }
+    }
+
+    var current = 0;
+    var session = null;
+
+    function isDone(i) { return progress.done.indexOf(list[i].id) !== -1; }
+    function isOpen(i) { return i === 0 || isDone(i) || isDone(i - 1); }
+
+    function firstUndone() {
+        for (var i = 0; i < list.length; i++) if (!isDone(i)) return i;
+        return list.length - 1;
+    }
+
+    function welcome(i) {
+        return 'Challenge ' + bn(i + 1) + ': ' + list[i].title + '। কাজটা উপরে লেখা আছে। প্রতিটা command-এর পরে নিজে থেকে যাচাই হবে।';
+    }
+
+    var tree = window.LinuxTreeView.mount($('chTree'), function () { return session.state; }, { perms: false });
+
+    function rich(el, text) {
+        el.textContent = '';
+        Terminal.fillRich(el, text);
+    }
+
+    function renderList() {
+        var box = $('chList');
+        box.textContent = '';
+        list.forEach(function (c, i) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'side-item' + (i === current ? ' cur' : '') + (isDone(i) ? ' done' : '');
+            b.dataset.i = i;
+            b.disabled = !isOpen(i);
+            b.innerHTML = '<span class="st"></span><span class="nm"></span><span class="lvl"></span>';
+            b.querySelector('.st').textContent = isDone(i) ? '✓' : isOpen(i) ? bn(i + 1) : '🔒';
+            b.querySelector('.nm').textContent = c.title;
+            b.querySelector('.lvl').textContent = c.level;
+            box.appendChild(b);
+        });
+        var done = list.filter(function (c, i) { return isDone(i); }).length;
+        $('progressBar').style.width = (done / list.length * 100) + '%';
+        $('progressText').textContent = bn(done) + ' / ' + bn(list.length) + 'টা শেষ';
+    }
+
+    function renderChecks(result) {
+        var box = $('chChecks');
+        box.textContent = '';
+        result.results.forEach(function (r) {
+            var row = document.createElement('div');
+            row.className = 'ch-check' + (r.pass ? ' pass' : '');
+            var mk = document.createElement('span');
+            mk.className = 'mk';
+            mk.textContent = r.pass ? '✓' : '·';
+            var tx = document.createElement('span');
+            Terminal.fillRich(tx, r.label);
+            row.appendChild(mk);
+            row.appendChild(tx);
+            box.appendChild(row);
+        });
+    }
+
+    function evaluate(s) {
+        session = s;
+        var result = Challenge.check(list[current], s);
+        renderChecks(result);
+        if (result.pass && !isDone(current)) {
+            progress.done.push(list[current].id);
+            save();
+            renderList();
+        }
+        var last = current === list.length - 1;
+        $('chResult').hidden = !result.pass;
+        $('chResult').textContent = result.pass ? (last ? '✓ সমাধান হয়েছে, সব challenge শেষ! অভিনন্দন।' : '✓ সমাধান হয়েছে! পরের challenge খুলে গেছে।') : '';
+        $('chNext').hidden = !(isDone(current) && !last);
+    }
+
+    function fresh(i) {
+        return Challenge.start(list[i], welcome(i));
+    }
+
+    var terminal = Terminal.mount($('chTerm'), {
+        session: (session = fresh(current)),
+        onCommit: evaluate,
+        onRender: function (s) { session = s; tree.render(); },
+        onReset: function () { tree.reset(); return fresh(current); }
+    });
+
+    function load(i) {
+        current = i;
+        var c = list[i];
+        $('chNo').textContent = bn(i + 1);
+        $('chTitle').textContent = c.title;
+        $('chLevel').textContent = c.level;
+        rich($('chTask'), c.task);
+        $('chHintBox').hidden = true;
+        $('chSolutionBox').hidden = true;
+        tree.reset();
+        terminal.setSession(fresh(i));
+        var result = Challenge.check(c, session);
+        renderChecks(result);
+        $('chResult').hidden = true;
+        $('chNext').hidden = !(isDone(i) && i < list.length - 1);
+        renderList();
+    }
+
+    $('chList').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-i]');
+        if (b && !b.disabled) { load(Number(b.dataset.i)); terminal.focus(); }
+    });
+    $('chHint').addEventListener('click', function () {
+        rich($('chHintBox'), '💡 ' + list[current].hint);
+        $('chHintBox').hidden = false;
+    });
+    $('chSolution').addEventListener('click', function () {
+        var box = $('chSolutionBox');
+        box.textContent = '';
+        var head = document.createElement('b');
+        head.textContent = 'একটা সম্ভাব্য উত্তর:';
+        var code = document.createElement('code');
+        code.textContent = list[current].solution;
+        var run = document.createElement('button');
+        run.type = 'button';
+        run.className = 'btn small';
+        run.textContent = 'চালিয়ে দেখুন';
+        run.addEventListener('click', function () { terminal.run(list[current].solution); terminal.focus(); });
+        box.appendChild(head);
+        box.appendChild(code);
+        box.appendChild(run);
+        box.hidden = false;
+    });
+    $('chNext').addEventListener('click', function () { load(Math.min(list.length - 1, current + 1)); terminal.focus(); });
+    $('chReset').addEventListener('click', function () {
+        if (!window.confirm('সব challenge-এর অগ্রগতি মুছে যাবে। নিশ্চিত?')) return;
+        progress = { done: [] };
+        save();
+        load(0);
+    });
+
+    load(firstUndone());
+})();
+</script>

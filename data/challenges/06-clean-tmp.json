@@ -1,0 +1,37 @@
+{
+    "title": "অস্থায়ী ফাইল মুছুন",
+    "level": "মাঝারি",
+    "task": "`downloads`-এ কিছু `.tmp` ফাইল জমে গেছে। সব `.tmp` ফাইল মুছুন, কিন্তু অন্য কোনো ফাইল যেন না মোছে।",
+    "setup": [
+        "touch ~/downloads/cache.tmp ~/downloads/part1.tmp ~/downloads/part2.tmp"
+    ],
+    "checks": [
+        {
+            "type": "missing",
+            "path": "~/downloads/cache.tmp"
+        },
+        {
+            "type": "missing",
+            "path": "~/downloads/part1.tmp"
+        },
+        {
+            "type": "missing",
+            "path": "~/downloads/part2.tmp"
+        },
+        {
+            "type": "exists",
+            "path": "~/downloads/report.pdf",
+            "label": "অন্য ফাইল ঠিক আছে"
+        },
+        {
+            "type": "exists",
+            "path": "~/downloads/song.mp3",
+            "label": "গানের ফাইল ঠিক আছে"
+        }
+    ],
+    "hint": "আগে `ls ~/downloads/*.tmp` দিয়ে দেখে নিন কী কী মিলছে, তারপর একই আকার দিয়ে `rm`।",
+    "solution": "rm ~/downloads/*.tmp",
+    "alternatives": [
+        "cd downloads && rm cache.tmp part1.tmp part2.tmp"
+    ]
+}

@@ -1,0 +1,22 @@
+{
+    "title": "হারানো todo.txt",
+    "level": "মাঝারি",
+    "task": "home-এর কোথাও `todo.txt` নামে একটা ফাইল আছে, কিন্তু কোথায় মনে নেই। ফাইলটার পুরো path পর্দায় দেখান।",
+    "setup": [
+        "mkdir -p ~/projects/old/2025/draft",
+        "echo 'সাইটের মেনু ঠিক করা' > ~/projects/old/2025/draft/todo.txt"
+    ],
+    "checks": [
+        {
+            "type": "stdout",
+            "contains": "/home/dev/projects/old/2025/draft/todo.txt",
+            "label": "আউটপুটে ফাইলের পুরো path"
+        }
+    ],
+    "hint": "নাম দিয়ে ফাইল খোঁজে `find`। home থেকে খোঁজা শুরু করুন: `find ~ -name ...`।",
+    "solution": "find ~ -name todo.txt",
+    "alternatives": [
+        "find /home -name 'todo*'",
+        "find ~ -type f -name todo.txt"
+    ]
+}

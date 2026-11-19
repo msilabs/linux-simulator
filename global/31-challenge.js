@@ -4,11 +4,12 @@
 //   { "type": "content", "path": "~/a.txt", "equals" | "contains": "..." }
 //   { "type": "mode", "path": "~/a.txt", "mode": "600" }
 //   { "type": "owner", "path": "~/a.txt", "owner": "root" }
-//   { "type": "stdout", "equals" | "contains": "..." }   শেষ command-এর আউটপুট, শেষের \n বাদে
+//   { "type": "stdout", "equals" | "contains" | "notContains": "..." }   শেষ command-এর আউটপুট, শেষের \n বাদে
 //   { "type": "noProcess", "cmd": "node server.js" }
 //   { "type": "alias", "name": "ll", "value"?: "ls -la" }
 //   { "type": "env", "name": "EDITOR", "value"?: "nano" }
 // প্রতিটা check-এ চাইলে নিজের "label" দেওয়া যায়, না দিলে এখানে বানানো হয়।
+// setup-এ command-এর লেখা, অথবা root হিসেবে ফাইল বানানো: { "file": "/root/a.txt", "content": "...", "mode": "600" }
 (function (root) {
     var isNode = typeof module !== 'undefined' && module.exports;
     var Fs = isNode ? require('./02-fs.js') : root.LinuxFs;
@@ -38,6 +39,7 @@
     function matchText(actual, check) {
         if (actual === undefined || actual === null) return false;
         if (has(check, 'equals')) return actual === check.equals;
+        if (has(check, 'notContains')) return actual.indexOf(check.notContains) === -1;
         return actual.indexOf(check.contains) !== -1;
     }
 
@@ -76,7 +78,11 @@
             }
         },
         stdout: {
-            label: function () { return 'শেষ command-এর আউটপুট ঠিক'; },
+            label: function (c) {
+                if (has(c, 'notContains')) return 'আউটপুটে `' + c.notContains + '` নেই';
+                if (has(c, 'contains')) return 'আউটপুটে `' + c.contains + '` আছে';
+                return 'শেষ command-এর আউটপুট ঠিক';
+            },
             test: function (c, s) { return !!s.last && matchText(trimEnd(s.last.stdout), c); }
         },
         noProcess: {
@@ -97,8 +103,15 @@
     function start(challenge, welcome) {
         var s = Session.freshSession(welcome);
         var state = s.state;
-        (challenge.setup || []).forEach(function (command) {
-            state = Shell.run(state, command, { history: [], status: 0 }).state;
+        (challenge.setup || []).forEach(function (step) {
+            if (typeof step === 'string') {
+                state = Shell.run(state, step, { history: [], status: 0 }).state;
+                return;
+            }
+            var asRoot = Object.assign({}, state, { user: 'root' });
+            asRoot = Shell.writeFile(asRoot, step.file, step.content || '').state;
+            if (step.mode) asRoot = Shell.run(asRoot, 'chmod ' + step.mode + ' ' + step.file, { history: [], status: 0 }).state;
+            state = Object.assign({}, asRoot, { user: state.user });
         });
         return Object.assign({}, s, { state: state, base: state });
     }

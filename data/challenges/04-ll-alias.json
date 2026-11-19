@@ -1,0 +1,18 @@
+{
+    "title": "ll নামে ছোট command",
+    "level": "সহজ",
+    "task": "প্রতিবার `ls -la` লিখতে লিখতে ক্লান্ত। এমন ব্যবস্থা করুন যাতে শুধু `ll` লিখলেই `ls -la` চলে।",
+    "setup": [],
+    "checks": [
+        {
+            "type": "alias",
+            "name": "ll",
+            "value": "ls -la"
+        }
+    ],
+    "hint": "`alias নাম='command'` দিয়ে ছোট নাম বানানো যায়। `=`-এর দুই পাশে space দেবেন না।",
+    "solution": "alias ll='ls -la'",
+    "alternatives": [
+        "alias ll=\"ls -la\""
+    ]
+}

@@ -1,0 +1,20 @@
+{
+    "title": "log-এর শেষ অংশ রেখে দিন",
+    "level": "মাঝারি",
+    "task": "`/var/log/nginx/error.log`-এর শেষ ৫ লাইন `~/last.txt` ফাইলে রাখুন, যাতে পরে সহকর্মীকে পাঠাতে পারেন।",
+    "setup": [],
+    "checks": [
+        {
+            "type": "content",
+            "path": "~/last.txt",
+            "equals": "2026-11-18 10:05:50 [WARN] cache is almost full: 91%\n2026-11-18 10:10:32 [ERROR] upstream timed out while reading response header\n2026-11-18 10:15:30 [ERROR] upstream timed out while reading response header\n2026-11-18 10:20:45 [INFO] server started on port 80\n2026-11-18 10:25:37 [WARN] slow response from upstream: 2.4s\n",
+            "label": "`~/last.txt`-এ ঠিক শেষ ৫ লাইন"
+        }
+    ],
+    "hint": "শেষ কয়েক লাইন দেখায় `tail -n`। পর্দার বদলে ফাইলে পাঠাতে `>`।",
+    "solution": "tail -n 5 /var/log/nginx/error.log > ~/last.txt",
+    "alternatives": [
+        "tail -5 /var/log/nginx/error.log > last.txt",
+        "cat /var/log/nginx/error.log | tail -n 5 > ~/last.txt"
+    ]
+}

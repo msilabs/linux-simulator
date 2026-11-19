@@ -1,4 +1,5 @@
-// DOM: পাশের ফাইল গাছ। LinuxTreeView.mount(root, getState) root-এর ভেতরে গাছ বানায়, ফেরত দেয় { render }।
+// DOM: পাশের ফাইল গাছ। LinuxTreeView.mount(root, getState, options) root-এর ভেতরে গাছ বানায়, ফেরত দেয় { render, reset }।
+// options.perms === false হলে শুরুতে অধিকারের কলাম বন্ধ থাকে (সরু জায়গার জন্য)।
 // নতুন আর বদলানো জিনিস কিছুক্ষণ রঙিন থাকে, মোছা জিনিসের নাম ছোট বার্তায় আসে।
 (function () {
     if (typeof document === 'undefined') return;
@@ -22,11 +23,12 @@
         return '📄';
     }
 
-    function mount(root, getState) {
+    function mount(root, getState, options) {
         root.innerHTML = TEMPLATE;
         var q = function (sel) { return root.querySelector(sel); };
         var treeEl = q('.tree');
         var treePerms = q('.tree-perms');
+        if (options && options.perms === false) treePerms.checked = false;
         var treeHidden = q('.tree-hidden');
         var treeNote = q('.tree-note');
         var preview = q('.preview');

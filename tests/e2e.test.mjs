@@ -128,6 +128,33 @@ test('e2e: a lesson turns its terminal blocks into small working terminals', { s
     assert.deepEqual(problems, []);
 });
 
+test('e2e: a challenge checks every command, unlocks the next one and remembers it', { skip }, async () => {
+    await open();
+    await send('Page.navigate', { url: url + 'challenge/' });
+    await waitFor("!!document.querySelector('#chTerm .term-input') && document.getElementById('chTitle').textContent !== ''", 'challenge page');
+    problems = [];
+    assert.equal(await js("document.querySelectorAll('#chList .side-item').length"), 15);
+    assert.equal(await js("document.querySelectorAll('#chList .side-item[disabled]').length"), 14);
+    assert.equal(await js("document.querySelector('#chChecks .ch-check.pass')"), null);
+    const type = (command) => js(`(() => { const i = document.querySelector('#chTerm .term-input'); i.value = ${JSON.stringify(command)}; document.querySelector('#chTerm .term-form').requestSubmit(); })()`);
+    await type('cd projects');
+    assert.equal(await js("document.getElementById('chResult').hidden"), true);
+    await type('cd my-site');
+    assert.equal(await js("document.getElementById('chResult').hidden"), false);
+    assert.equal(await js("document.getElementById('chNext').hidden"), false);
+    assert.equal(await js("document.querySelectorAll('#chList .side-item[disabled]').length"), 13);
+    await js("document.getElementById('chNext').click()");
+    assert.equal(await js("document.getElementById('chTitle').textContent"), 'নোটে কয় লাইন');
+    assert.equal(await js("document.querySelector('#chTerm .term-form .prompt').textContent"), 'dev@laptop:~$');
+    await send('Page.reload');
+    await waitFor("!!document.querySelector('#chTerm .term-input') && document.getElementById('chTitle').textContent !== ''", 'reload');
+    assert.equal(await js("document.getElementById('chTitle').textContent"), 'নোটে কয় লাইন');
+    assert.equal(await js("document.getElementById('progressText').textContent"), '১ / ১৫টা শেষ');
+    await js("document.getElementById('chSolution').click(); document.querySelector('#chSolutionBox button').click()");
+    assert.equal(await js("document.getElementById('chResult').hidden"), false);
+    assert.deepEqual(problems, []);
+});
+
 test('e2e: commands, explanations, errors and pipes show on screen', { skip }, async () => {
     await open();
     await run('ls -l');

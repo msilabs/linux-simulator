@@ -90,3 +90,78 @@ test('engine: undo and Ctrl+C keep the last result sensible', () => {
     s = Session.undo(play(['mkdir a'], s));
     assert.equal(s.last, null);
 });
+
+test('engine: setup can write a file as root, out of reach for dev', () => {
+    const ch = { setup: [{ file: '/root/secret.txt', content: 'hidden\n', mode: '600' }], checks: [{ type: 'stdout', contains: 'hidden' }] };
+    const s = Challenge.start(ch);
+    assert.equal(s.state.user, 'dev');
+    assert.equal(passes(ch, ['cat /root/secret.txt']), false);
+    assert.equal(passes(ch, ['sudo cat /root/secret.txt']), true);
+});
+
+test('engine: stdout notContains', () => {
+    const ch = { checks: [{ type: 'stdout', contains: 'app.js' }, { type: 'stdout', notContains: 'console' }] };
+    assert.equal(passes(ch, ['grep -rl console projects']), true);
+    assert.equal(passes(ch, ['grep -r console projects']), false);
+});
+
+/* ---------- data/challenges ---------- */
+
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+
+const dir = new URL('../data/challenges/', import.meta.url).pathname;
+const challenges = readdirSync(dir).filter((f) => f.endsWith('.json')).sort().map((file) => ({ file, ...JSON.parse(readFileSync(join(dir, file), 'utf8')) }));
+
+test('data: fifteen challenges, easy to hard, with every field', () => {
+    assert.equal(challenges.length, 15);
+    const levels = ['সহজ', 'মাঝারি', 'কঠিন'];
+    let previous = 0;
+    for (const c of challenges) {
+        for (const key of ['title', 'level', 'task', 'hint', 'solution']) assert.ok(typeof c[key] === 'string' && c[key], `${c.file}: ${key}`);
+        assert.ok(Array.isArray(c.setup) && Array.isArray(c.alternatives), `${c.file}: setup/alternatives`);
+        assert.ok(Array.isArray(c.checks) && c.checks.length > 0, `${c.file}: checks`);
+        c.checks.forEach((k) => assert.ok(Challenge.TYPES.includes(k.type), `${c.file}: unknown check ${k.type}`));
+        const level = levels.indexOf(c.level);
+        assert.ok(level >= previous, `${c.file}: level "${c.level}" is out of order`);
+        previous = level;
+    }
+});
+
+test('data: no challenge is already solved before you start', () => {
+    for (const c of challenges) {
+        assert.equal(Challenge.check(c, Challenge.start(c)).pass, false, `${c.file} passes with no commands`);
+    }
+});
+
+test('data: the solution and every alternative pass', () => {
+    for (const c of challenges) {
+        for (const answer of [c.solution, ...c.alternatives]) {
+            const result = Challenge.check(c, play([answer], Challenge.start(c)));
+            assert.ok(result.pass, `${c.file}: "${answer}" fails: ${result.results.filter((r) => !r.pass).map((r) => r.label).join(', ')}`);
+        }
+    }
+});
+
+test('data: common half answers do not pass', () => {
+    const byName = Object.fromEntries(challenges.map((c) => [c.file.replace(/^\d+-|\.json$/g, ''), c]));
+    const fails = (name, commands) => assert.equal(passes(byName[name], commands), false, `${name}: ${commands.join(' ; ')}`);
+    fails('count-notes', ['wc -l notes.txt']);
+    fails('photos', ['mkdir ~/pictures', 'cp ~/downloads/*.jpg ~/pictures']);
+    fails('clean-tmp', ['rm ~/downloads/*']);
+    fails('todo-files', ['grep -r TODO ~/projects']);
+    fails('todo-files', ['cat ~/projects/my-site/index.html']);
+    fails('run-backup', ['~/scripts/backup.sh']);
+    fails('secret-env', ['echo DB_PASSWORD=example > ~/projects/my-site/.env']);
+    fails('root-secret', ['cat /root/secret.txt']);
+    fails('stuck-server', ['kill 2301']);
+    fails('log-detective', ["grep ' 500 ' /var/log/nginx/access.log | cut -d' ' -f1 | sort | uniq -c | sort -rn | head -n 1"]);
+});
+
+test('the seed has what the challenges rely on', () => {
+    const s = Challenge.start({ checks: [] });
+    for (const p of ['/home/dev/notes.txt', '/home/dev/downloads/photo1.jpg', '/home/dev/downloads/photo2.jpg', '/home/dev/scripts/backup.sh', '/var/log/nginx/access.log', '/var/log/nginx/error.log', '/home/dev/projects/my-site/app.js']) {
+        assert.equal(passes({ checks: [{ type: 'exists', path: p }] }, []), true, p);
+    }
+    assert.ok(s.state.processes.some((p) => p.pid === 2301 && p.stubborn));
+});

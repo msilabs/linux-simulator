@@ -269,3 +269,39 @@ code, pre { font-family: var(--f-code); font-variant-ligatures: none; }
 .pager-link:hover { border-color: var(--accent); }
 .pager-link.next { text-align: right; }
 @media (max-width: 560px) { .pager { grid-template-columns: 1fr; } }
+
+/* Challenge */
+.progress { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; margin: 4px 2px; }
+.progress i { display: block; height: 100%; width: 0; background: var(--ok); transition: width .3s; }
+.progress-text { margin: 4px 2px 8px; color: var(--muted); font-size: 13px; font-weight: 600; }
+.reset-link { justify-self: start; margin: 8px 2px 2px; padding: 0; border: 0; background: none; color: var(--muted); font: 600 13px var(--f-body); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.reset-link:hover { color: var(--bad); }
+.side-item .nm { flex: 1; min-width: 0; }
+.lvl { margin-left: auto; flex: none; padding: 1px 7px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--muted); font-size: 12px; font-weight: 700; }
+.ch-main { display: grid; gap: 18px; min-width: 0; }
+.ch-panel { display: grid; gap: 12px; }
+.ch-title { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.ch-title h2 { margin: 0; font-family: var(--f-display); font-size: 22px; font-weight: 800; line-height: 1.25; }
+.ch-title .lvl { margin-left: 0; }
+.ch-no { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); font: 800 15px var(--f-display); }
+.ch-task { margin: 0; font-size: 15.5px; line-height: 1.75; }
+.ch-task code, .ch-check code, .hint-box code { padding: 0 5px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface-2); font-size: .9em; }
+.ch-checks { display: grid; gap: 6px; }
+.ch-check { display: flex; gap: 10px; align-items: baseline; padding: 7px 10px; border: 1px solid var(--line); border-radius: 10px; color: var(--muted); font-size: 14px; }
+.ch-check .mk { flex: none; width: 16px; text-align: center; font-weight: 800; }
+.ch-check.pass { border-color: var(--ok); color: var(--ink); }
+.ch-check.pass .mk { color: var(--ok); }
+.ch-result { padding: 9px 12px; border-radius: 10px; background: color-mix(in srgb, var(--ok) 15%, transparent); color: var(--ok); font-weight: 700; }
+.ch-buttons { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ch-buttons .spacer { flex: 1; }
+.hint-box { padding: 10px 12px; border: 1px solid var(--warn); border-radius: 10px; background: color-mix(in srgb, var(--warn) 10%, transparent); font-size: 14px; line-height: 1.7; }
+.solution { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; padding: 10px 12px; border: 1px dashed var(--line-strong); border-radius: 10px; font-size: 14px; }
+.solution code { padding: 2px 8px; border-radius: 6px; background: var(--term-bg); color: var(--term-ink); overflow-wrap: anywhere; }
+.ch-work { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 18px; align-items: start; }
+.ch-work > * { min-width: 0; }
+.ch-work .term { height: min(52vh, 460px); min-height: 280px; }
+@media (max-width: 1100px) {
+  .ch-work { grid-template-columns: minmax(0, 1fr); }
+  .ch-work .tree-card { position: static; max-height: 360px; }
+}
+@media (max-width: 860px) { .ch-aside { order: 2; } }

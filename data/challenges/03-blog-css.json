@@ -1,0 +1,18 @@
+{
+    "title": "ব্লগের CSS ফাইল",
+    "level": "সহজ",
+    "task": "নতুন ব্লগ প্রজেক্ট শুরু করছেন। `~/projects/blog/css/style.css` ফাইলটা বানান। মাঝের ফোল্ডারগুলো এখনো নেই।",
+    "setup": [],
+    "checks": [
+        {
+            "type": "exists",
+            "path": "~/projects/blog/css/style.css"
+        }
+    ],
+    "hint": "`mkdir -p` একবারে কয়েক স্তরের ফোল্ডার বানায়। খালি ফাইল বানায় `touch`। দুটো command `&&` দিয়ে জোড়া যায়।",
+    "solution": "mkdir -p projects/blog/css && touch projects/blog/css/style.css",
+    "alternatives": [
+        "mkdir -p ~/projects/blog/css; touch ~/projects/blog/css/style.css",
+        "mkdir -p ~/projects/blog/css && echo 'body {}' > ~/projects/blog/css/style.css"
+    ]
+}

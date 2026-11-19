@@ -1,0 +1,30 @@
+{
+    "title": "ছবিগুলো আলাদা করুন",
+    "level": "সহজ",
+    "task": "`downloads`-এ সব ধরনের ফাইল মিশে আছে। সব `.jpg` ছবি `~/pictures` নামে নতুন ফোল্ডারে সরান। ফোল্ডারটা এখনো নেই।",
+    "setup": [],
+    "checks": [
+        {
+            "type": "exists",
+            "path": "~/pictures/photo1.jpg"
+        },
+        {
+            "type": "exists",
+            "path": "~/pictures/photo2.jpg"
+        },
+        {
+            "type": "missing",
+            "path": "~/downloads/photo1.jpg"
+        },
+        {
+            "type": "missing",
+            "path": "~/downloads/photo2.jpg"
+        }
+    ],
+    "hint": "আগে `mkdir` দিয়ে ফোল্ডার বানান। তারপর `mv` আর `*.jpg` দিয়ে সব ছবি একবারে সরান।",
+    "solution": "mkdir ~/pictures && mv ~/downloads/*.jpg ~/pictures/",
+    "alternatives": [
+        "mkdir pictures; mv downloads/photo1.jpg downloads/photo2.jpg pictures",
+        "mkdir ~/pictures && cd ~/downloads && mv *.jpg ~/pictures"
+    ]
+}
