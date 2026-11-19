@@ -1,7 +1,7 @@
 {
     "name": "linux-simulator",
     "private": true,
-    "description": "ব্রাউজারে নকল Linux terminal: নিজের হাতে command চালান, প্রতিটার বাংলা ব্যাখ্যা পান, ১১টা mission শেষ করুন",
+    "description": "ব্রাউজারে নকল Linux terminal: নিজের হাতে command চালান, প্রতিটার বাংলা ব্যাখ্যা পান, ১৬টা পাঠে শিখুন আর ১৫টা challenge দিন",
     "license": "MIT",
     "author": "msilabs",
     "homepage": "https://msilabs.github.io/linux-simulator/",

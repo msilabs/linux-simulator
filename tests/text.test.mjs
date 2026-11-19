@@ -8,7 +8,7 @@ const seed = Seed.createState();
 const errorLines = read(seed, ERROR_LOG).split('\n').filter(Boolean);
 const accessLines = read(seed, ACCESS_LOG).split('\n').filter(Boolean);
 
-test('seed logs have what the missions need', () => {
+test('seed logs have what the lessons and challenges need', () => {
     assert.ok(errorLines.filter((l) => l.includes('[ERROR]')).length >= 5);
     assert.ok(errorLines.filter((l) => l.includes('[WARN]')).length >= 5);
     assert.ok(accessLines.filter((l) => l.includes('" 404 ')).length >= 5);

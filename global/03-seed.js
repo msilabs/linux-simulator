@@ -1,4 +1,4 @@
-// শুরুর file system আর state। প্রতিবার হুবহু একই, তাই test আর mission নির্ভরযোগ্য।
+// শুরুর file system আর state। প্রতিবার হুবহু একই, তাই test, পাঠ আর challenge নির্ভরযোগ্য।
 (function (root) {
     var Fs = typeof module !== 'undefined' && module.exports ? require('./02-fs.js') : root.LinuxFs;
 
