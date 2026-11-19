@@ -112,6 +112,22 @@ test('e2e: the header has three links and the hero points to Learn and Challenge
     assert.deepEqual(await js("[...document.querySelectorAll('.hero-actions a')].map((a) => a.getAttribute('href'))"), ['/learn/', '/challenge/']);
 });
 
+test('e2e: a lesson turns its terminal blocks into small working terminals', { skip }, async () => {
+    await open();
+    await send('Page.navigate', { url: url + 'learn/navigate/' });
+    await waitFor("document.querySelectorAll('#lessonBody .try .term-input').length >= 2", 'lesson terminals');
+    problems = [];
+    const box = "document.querySelectorAll('#lessonBody .try')[1]";
+    assert.match(await js(`${box}.querySelector('.term-out').innerText`), /\/home\/dev\/projects\/my-site/);
+    await js(`(() => { const b = ${box}; b.querySelector('.term-input').value = 'cd ..'; b.querySelector('.term-form').requestSubmit(); })()`);
+    assert.equal(await js(`${box}.querySelector('.term-form .prompt').textContent`), 'dev@laptop:~/projects$');
+    assert.equal(await js("document.querySelectorAll('#lessonBody .try')[0].querySelector('.term-form .prompt').textContent"), 'dev@laptop:~$');
+    await js(`${box}.querySelector('.btn-reset').click()`);
+    assert.equal(await js(`${box}.querySelector('.term-form .prompt').textContent`), 'dev@laptop:~/projects/my-site$');
+    assert.equal(await js("document.querySelector('.site-header .nav a.on').textContent.trim()"), 'Learn');
+    assert.deepEqual(problems, []);
+});
+
 test('e2e: commands, explanations, errors and pipes show on screen', { skip }, async () => {
     await open();
     await run('ls -l');

@@ -351,6 +351,8 @@
         };
         if (!active) active = self;
         render();
+        // পাঠের বাক্স শুরুতে উপর থেকে দেখায়, যাতে আগে থেকে চালানো প্রথম command চোখে পড়ে
+        if (options.compact) term.scrollTop = 0;
         return self;
     }
 

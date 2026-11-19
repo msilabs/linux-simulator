@@ -1,0 +1,78 @@
+<head>
+    <title>{{ item.title }} · Learn · {{ data.site.name }}</title>
+    <meta name="description" content="{{ item.summary }}">
+    <meta property="og:title" content="{{ item.title }} · Learn · {{ data.site.name }}">
+    <meta property="og:description" content="{{ item.summary }}">
+</head>
+
+<template>
+<main class="wrap">
+  <div class="side-layout lesson-layout">
+    <article class="card lesson">
+      <p class="crumbs"><a href="/learn/">Learn</a> · পাঠ {{ item.order.toLocaleString('bn-BD') }} / {{ data.learn.length.toLocaleString('bn-BD') }}</p>
+      <h1>{{ item.title }}</h1>
+      <div class="lesson-body" id="lessonBody">{{{ item.body }}}</div>
+
+      <nav class="pager" aria-label="আগের আর পরের পাঠ">
+        <template if="data.learn.find((l) => l.order === item.order - 1)">
+          <a class="pager-link" href="/learn/{{ data.learn.find((l) => l.order === item.order - 1).slug }}/">
+            <small>← আগের পাঠ</small>{{ data.learn.find((l) => l.order === item.order - 1).title }}
+          </a>
+        </template>
+        <template else><span></span></template>
+        <template if="data.learn.find((l) => l.order === item.order + 1)">
+          <a class="pager-link next" href="/learn/{{ data.learn.find((l) => l.order === item.order + 1).slug }}/">
+            <small>পরের পাঠ →</small>{{ data.learn.find((l) => l.order === item.order + 1).title }}
+          </a>
+        </template>
+        <template else>
+          <a class="pager-link next" href="/challenge/"><small>সব পাঠ শেষ →</small>এবার Challenge-এ নিজেকে যাচাই করুন</a>
+        </template>
+      </nav>
+    </article>
+
+    <aside class="card side-list outline" aria-label="সব পাঠ">
+      <template for="l in data.learn.toSorted((a, b) => a.order - b.order)">
+        <a class="side-item {{ l.slug === item.slug ? 'cur' : '' }}" href="/learn/{{ l.slug }}/">
+          <span class="st">{{ l.order.toLocaleString('bn-BD') }}</span><span>{{ l.title }}</span>
+        </a>
+      </template>
+    </aside>
+  </div>
+</main>
+</template>
+
+<script>
+(function () {
+    var Session = window.LinuxSession;
+    var Terminal = window.LinuxTerminal;
+
+    // ```terminal ব্লক: `$ ` দিয়ে শুরু লাইনগুলো আগে থেকে চালানো থাকে, বাকি লাইন উপেক্ষা করা হয়
+    function commandsOf(source) {
+        return source.split('\n').filter(function (l) { return l.indexOf('$ ') === 0; }).map(function (l) { return l.slice(2); });
+    }
+
+    // আগে থেকে চালানো command পর্দায় আর history-তে থাকে, কিন্তু Undo সেগুলো মোছে না
+    function prepared(commands) {
+        var s = Object.assign({}, Session.freshSession(), { lines: [] });
+        commands.forEach(function (c) {
+            s = Session.applyCommand(s, c);
+            if (s.running) s = Session.stopRunning(s);
+        });
+        return Object.assign({}, s, { base: s.state, log: [], past: [] });
+    }
+
+    document.querySelectorAll('#lessonBody pre > code.language-terminal').forEach(function (code) {
+        var commands = commandsOf(code.textContent);
+        var box = document.createElement('div');
+        box.className = 'try';
+        box.innerHTML = '<div class="try-head"><span class="try-label">নিজে চালিয়ে দেখুন</span><span class="try-note">নিচে command লিখে Enter চাপুন</span></div><div class="term-slot"></div>';
+        code.parentNode.replaceWith(box);
+        Terminal.mount(box.querySelector('.term-slot'), {
+            compact: true,
+            session: prepared(commands),
+            onReset: function () { return prepared(commands); }
+        });
+    });
+})();
+</script>

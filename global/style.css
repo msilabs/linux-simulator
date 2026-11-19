@@ -201,3 +201,71 @@ code, pre { font-family: var(--f-code); font-variant-ligatures: none; }
 }
 @media (prefers-reduced-motion: reduce) { .tree-row { transition: none; } }
 
+
+/* ছোট terminal (পাঠের ভেতরে) */
+.term-box { display: grid; gap: 10px; }
+.term-box.compact .term { height: auto; min-height: 110px; max-height: 420px; padding: 12px; font-size: 13.5px; }
+.term-box.compact .term-actions .btn { height: 30px; }
+
+/* পাশে তালিকা (Learn আর Challenge) */
+.section-title { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: clamp(24px, 3vw, 30px); line-height: 1.2; letter-spacing: -0.01em; }
+.page-head .cta { margin-top: 6px; }
+.side-layout { display: grid; gap: 18px; grid-template-columns: 260px minmax(0, 1fr); align-items: start; }
+.side-layout > * { min-width: 0; }
+@media (max-width: 860px) { .side-layout { grid-template-columns: minmax(0, 1fr); } }
+.side-list { display: grid; gap: 4px; padding: 10px; }
+.side-item { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 8px 10px; border: 1px solid transparent; border-radius: 10px; background: none; color: var(--ink); font: 14px var(--f-body); cursor: pointer; }
+.side-item:hover:not([disabled]) { background: var(--surface-2); }
+.side-item.cur { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+.side-item[disabled] { color: var(--faint); cursor: not-allowed; }
+.side-item .st { width: 22px; flex: none; text-align: center; font-weight: 800; color: var(--muted); }
+.side-item.done .st { color: var(--ok); }
+.crumbs { margin: 0; font-size: 14px; color: var(--muted); }
+.crumbs a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.crumbs a:hover { text-decoration: underline; }
+
+/* Learn: তালিকা */
+.stage { display: grid; gap: 14px; margin-top: 18px; }
+.stage-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+.stage-note { color: var(--muted); font-size: 14.5px; }
+.course { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 760px) { .course { grid-template-columns: minmax(0, 1fr); } }
+.course li { display: grid; }
+.course-item { display: flex; gap: 14px; align-items: center; padding: 16px 18px; color: var(--ink); text-decoration: none; transition: border-color .15s; }
+.course-item:hover { border-color: var(--accent); }
+.course-item .num { flex: none; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); font: 800 16px var(--f-display); }
+.course-item .txt { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.course-item .txt b { font-family: var(--f-display); font-size: 17px; line-height: 1.35; }
+.course-item .txt span { color: var(--muted); font-size: 14px; line-height: 1.6; }
+.course-item .go { flex: none; color: var(--faint); transition: color .15s, transform .15s; }
+.course-item:hover .go { color: var(--accent); transform: translateX(3px); }
+@media (max-width: 640px) { .stage-head { justify-content: center; text-align: center; } .section-title { text-align: center; } }
+
+/* Learn: পাঠ */
+.lesson-layout { grid-template-columns: minmax(0, 1fr) 250px; }
+.outline { position: sticky; top: 76px; max-height: calc(100vh - 96px); overflow: auto; }
+.outline .side-item { text-decoration: none; font-size: 13.5px; padding: 6px 8px; }
+@media (max-width: 860px) { .lesson-layout { grid-template-columns: minmax(0, 1fr); } .outline { position: static; max-height: none; } }
+.lesson { padding: 22px 26px; }
+.lesson h1 { margin: 4px 0 14px; font-family: var(--f-display); font-size: clamp(24px, 3.4vw, 32px); line-height: 1.25; }
+.lesson-body { font-size: 16px; line-height: 1.8; }
+.lesson-body h2 { margin: 28px 0 8px; font-family: var(--f-display); font-size: 21px; }
+.lesson-body p, .lesson-body ul, .lesson-body ol { margin: 0 0 12px; }
+.lesson-body li { margin-bottom: 4px; }
+.lesson-body :not(pre) > code { background: var(--surface-2); border: 1px solid var(--line); padding: 0 5px; border-radius: 5px; font-size: .9em; }
+.lesson-body > pre { margin: 0 0 14px; padding: 14px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-sm); overflow-x: auto; font-size: 14px; line-height: 1.6; }
+.lesson-body table { width: 100%; border-collapse: collapse; margin: 0 0 14px; font-size: 15px; display: block; overflow-x: auto; }
+.lesson-body th, .lesson-body td { text-align: left; padding: 7px 12px; border-bottom: 1px solid var(--line); }
+.lesson-body th { color: var(--muted); font-size: 13px; font-weight: 600; }
+.lesson-body .term code, .lesson-body .term-box code { border: 0; }
+@media (max-width: 640px) { .lesson { padding: 18px 16px; } }
+.try { margin: 0 0 16px; padding: 12px; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); border-radius: var(--radius-sm); background: color-mix(in srgb, var(--accent) 5%, var(--surface)); }
+.try-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-bottom: 8px; font-size: 13px; }
+.try-label { font-weight: 700; color: var(--accent); white-space: nowrap; }
+.try-note { color: var(--muted); }
+.pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--line); }
+.pager-link { display: grid; gap: 2px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); color: var(--ink); font-weight: 600; text-decoration: none; }
+.pager-link small { color: var(--muted); font-weight: 500; font-size: 12.5px; }
+.pager-link:hover { border-color: var(--accent); }
+.pager-link.next { text-align: right; }
+@media (max-width: 560px) { .pager { grid-template-columns: 1fr; } }
