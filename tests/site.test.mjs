@@ -26,7 +26,7 @@ function jsFiles(dir) {
 }
 
 test('every engine file in global/ loads in Node without a DOM', () => {
-    const files = jsFiles(join(root, 'global')).filter((f) => !f.endsWith('90-app.js'));
+    const files = jsFiles(join(root, 'global')).filter((f) => !/\/[89]\d-[^/]*\.js$/.test(f));
     for (const file of files) {
         assert.doesNotThrow(() => require(file), `${file} must load without window or document`);
     }

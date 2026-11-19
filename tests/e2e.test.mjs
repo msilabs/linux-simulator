@@ -46,16 +46,16 @@ async function open(width = 1280, height = 900) {
     await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: width < 700 });
     // আগের test-এর সেভ করা অবস্থা যাতে না ঢোকে: একবার খুলে localStorage মুছে আবার খোলা
     await send('Page.navigate', { url });
-    await waitFor("!!document.getElementById('term-input')", 'first load');
+    await waitFor("!!document.querySelector('#playground .term-input')", 'first load');
     await js('localStorage.clear()');
     await send('Page.navigate', { url });
-    await waitFor("!!document.getElementById('term-input') && document.getElementById('term-out').children.length > 0", 'page load');
+    await waitFor("!!document.querySelector('#playground .term-input') && document.querySelector('#playground .term-out').children.length > 0", 'page load');
     problems = [];
 }
 
-const run = (command) => js(`(() => { const i = document.getElementById('term-input'); i.value = ${JSON.stringify(command)}; document.getElementById('term-form').requestSubmit(); })()`);
-const screen = () => js("document.getElementById('term-out').innerText");
-const key = (name, extra = {}) => js(`document.getElementById('term-input').dispatchEvent(new KeyboardEvent('keydown', Object.assign({ key: ${JSON.stringify(name)}, bubbles: true, cancelable: true }, ${JSON.stringify(extra)})))`);
+const run = (command) => js(`(() => { const i = document.querySelector('#playground .term-input'); i.value = ${JSON.stringify(command)}; document.querySelector('#playground .term-form').requestSubmit(); })()`);
+const screen = () => js("document.querySelector('#playground .term-out').innerText");
+const key = (name, extra = {}) => js(`document.querySelector('#playground .term-input').dispatchEvent(new KeyboardEvent('keydown', Object.assign({ key: ${JSON.stringify(name)}, bubbles: true, cancelable: true }, ${JSON.stringify(extra)})))`);
 
 before(async () => {
     if (skip) return;
@@ -101,8 +101,15 @@ after(async () => {
 test('e2e: the page loads and shows the welcome note, with no script errors', { skip }, async () => {
     await open();
     assert.match(await screen(), /Linux Simulator-এ স্বাগতম/);
-    assert.equal(await js("document.getElementById('term-prompt').textContent"), 'dev@laptop:~$');
+    assert.equal(await js("document.querySelector('#playground .term-form .prompt').textContent"), 'dev@laptop:~$');
     assert.deepEqual(problems, []);
+});
+
+test('e2e: the header has three links and the hero points to Learn and Challenge', { skip }, async () => {
+    await open();
+    assert.deepEqual(await js("[...document.querySelectorAll('.site-header .nav a')].map((a) => a.textContent.trim())"), ['Playground', 'Learn', 'Challenge']);
+    assert.equal(await js("document.querySelector('.site-header .nav a.on').textContent.trim()"), 'Playground');
+    assert.deepEqual(await js("[...document.querySelectorAll('.hero-actions a')].map((a) => a.getAttribute('href'))"), ['/learn/', '/challenge/']);
 });
 
 test('e2e: commands, explanations, errors and pipes show on screen', { skip }, async () => {
@@ -110,7 +117,7 @@ test('e2e: commands, explanations, errors and pipes show on screen', { skip }, a
     await run('ls -l');
     await run('cd nope');
     await run('cat notes.txt | head -n 1 | wc -l');
-    await waitFor("document.getElementById('term-out').innerText.includes('pipe')", 'pipe explanation');
+    await waitFor("document.querySelector('#playground .term-out').innerText.includes('pipe')", 'pipe explanation');
     const text = await screen();
     assert.match(text, /drwxr-xr-x/);
     assert.match(text, /bash: cd: nope: No such file or directory/);
@@ -124,34 +131,34 @@ test('e2e: history with the arrow keys and Tab completion', { skip }, async () =
     await run('pwd');
     await run('ls');
     await key('ArrowUp');
-    assert.equal(await js("document.getElementById('term-input').value"), 'ls');
+    assert.equal(await js("document.querySelector('#playground .term-input').value"), 'ls');
     await key('ArrowUp');
-    assert.equal(await js("document.getElementById('term-input').value"), 'pwd');
+    assert.equal(await js("document.querySelector('#playground .term-input').value"), 'pwd');
     await key('ArrowDown');
     await key('ArrowDown');
-    assert.equal(await js("document.getElementById('term-input').value"), '');
-    await js("document.getElementById('term-input').value = 'cd pro'");
+    assert.equal(await js("document.querySelector('#playground .term-input').value"), '');
+    await js("document.querySelector('#playground .term-input').value = 'cd pro'");
     await key('Tab');
-    assert.equal(await js("document.getElementById('term-input').value"), 'cd projects/');
+    assert.equal(await js("document.querySelector('#playground .term-input').value"), 'cd projects/');
 });
 
 test('e2e: progress stays after a reload, and Reset clears it', { skip }, async () => {
     await open();
     await run('mkdir keep && cd keep && touch a');
-    await waitFor("document.getElementById('term-prompt').textContent.includes('keep')", 'cd keep');
+    await waitFor("document.querySelector('#playground .term-form .prompt').textContent.includes('keep')", 'cd keep');
     await send('Page.reload');
-    await waitFor("document.getElementById('term-out').innerText.includes('mkdir keep')", 'restored screen');
-    assert.equal(await js("document.getElementById('term-prompt').textContent"), 'dev@laptop:~/keep$');
-    await js("window.confirm = () => true; document.getElementById('btn-reset').click()");
-    await waitFor("!document.getElementById('term-out').innerText.includes('mkdir keep')", 'reset');
-    assert.equal(await js("document.getElementById('term-prompt').textContent"), 'dev@laptop:~$');
+    await waitFor("!!document.querySelector('#playground .term-out') && document.querySelector('#playground .term-out').innerText.includes('mkdir keep')", 'restored screen');
+    assert.equal(await js("document.querySelector('#playground .term-form .prompt').textContent"), 'dev@laptop:~/keep$');
+    await js("window.confirm = () => true; document.querySelector('#playground .btn-reset').click()");
+    await waitFor("!document.querySelector('#playground .term-out').innerText.includes('mkdir keep')", 'reset');
+    assert.equal(await js("document.querySelector('#playground .term-form .prompt').textContent"), 'dev@laptop:~$');
 });
 
 test('e2e: Undo steps back one change', { skip }, async () => {
     await open();
     await run('mkdir gone');
     await waitFor("[...document.querySelectorAll('.tree-row')].some(r => r.textContent.includes('gone'))", 'folder in the tree');
-    await js("document.getElementById('btn-undo').click()");
+    await js("document.querySelector('#playground .btn-undo').click()");
     await waitFor("![...document.querySelectorAll('.tree-row')].some(r => r.textContent.includes('gone'))", 'folder gone after undo');
     assert.match(await screen(), /Undo করা হলো/);
 });
@@ -159,9 +166,9 @@ test('e2e: Undo steps back one change', { skip }, async () => {
 test('e2e: tail -f waits and the stop button ends it', { skip }, async () => {
     await open();
     await run('tail -f /var/log/nginx/error.log');
-    await waitFor("!document.getElementById('term-running').hidden && document.getElementById('term-form').hidden", 'running bar');
-    await js("document.getElementById('btn-stop').click()");
-    await waitFor("document.getElementById('term-running').hidden && !document.getElementById('term-form').hidden", 'stopped');
+    await waitFor("!document.querySelector('#playground .term-running').hidden && document.querySelector('#playground .term-form').hidden", 'running bar');
+    await js("document.querySelector('#playground .btn-stop').click()");
+    await waitFor("document.querySelector('#playground .term-running').hidden && !document.querySelector('#playground .term-form').hidden", 'stopped');
     assert.match(await screen(), /\^C/);
 });
 
@@ -172,7 +179,7 @@ test('e2e: nano opens the editor, saving changes the file', { skip }, async () =
     await js("document.getElementById('editor-text').value = 'বদলানো নোট\\n'; document.getElementById('editor-save').click()");
     await waitFor("document.getElementById('editor').hidden", 'editor closed');
     await run('cat notes.txt');
-    await waitFor("document.getElementById('term-out').innerText.includes('বদলানো নোট')", 'new text');
+    await waitFor("document.querySelector('#playground .term-out').innerText.includes('বদলানো নোট')", 'new text');
 });
 
 test('e2e: read-only files open read-only', { skip }, async () => {
@@ -189,10 +196,10 @@ test('e2e: the file tree opens folders, previews files and flags changes', { ski
     await js("document.querySelector('.tree-row[data-path=\"/home/dev/projects\"]').click()");
     await waitFor("!!document.querySelector('.tree-row[data-path=\"/home/dev/projects/my-site\"]')", 'folder opened');
     await js("document.querySelector('.tree-row[data-path=\"/home/dev/notes.txt\"]').click()");
-    assert.match(await js("document.getElementById('preview-text').textContent"), /Linux শেখার নোট/);
+    assert.match(await js("document.querySelector('#playground-tree .preview-text').textContent"), /Linux শেখার নোট/);
     await run('touch fresh.txt');
     await waitFor("!!document.querySelector('.tree-row.fresh')", 'fresh highlight');
-    await js("document.getElementById('tree-perms').click()");
+    await js("document.querySelector('#playground-tree .tree-perms').click()");
     assert.equal(await js("document.querySelectorAll('.tree-row .perm').length"), 0);
 });
 
@@ -203,18 +210,18 @@ test('e2e: the theme button switches the colours and is remembered', { skip }, a
     const after = await js("document.documentElement.dataset.theme");
     assert.ok(after === 'dark' || after === 'light');
     await send('Page.reload');
-    await waitFor("!!document.getElementById('term-input')", 'reload');
+    await waitFor("!!document.querySelector('#playground .term-input')", 'reload');
     assert.equal(await js("document.documentElement.dataset.theme"), after);
     void before;
 });
 
 test('e2e: on a phone the key bar shows, inserts text, and nothing scrolls sideways', { skip }, async () => {
     await open(390, 844);
-    assert.notEqual(await js("getComputedStyle(document.getElementById('keybar')).display"), 'none');
-    await js("document.getElementById('term-input').value = 'ls'");
+    assert.notEqual(await js("getComputedStyle(document.querySelector('#playground .keybar')).display"), 'none');
+    await js("document.querySelector('#playground .term-input').value = 'ls'");
     await js("document.querySelector('[data-insert=\"|\"]').click()");
-    assert.equal(await js("document.getElementById('term-input').value"), 'ls|');
+    assert.equal(await js("document.querySelector('#playground .term-input').value"), 'ls|');
     assert.ok(await js('document.documentElement.scrollWidth <= window.innerWidth'), 'page is wider than the phone screen');
     await open(1280, 900);
-    assert.equal(await js("getComputedStyle(document.getElementById('keybar')).display"), 'none');
+    assert.equal(await js("getComputedStyle(document.querySelector('#playground .keybar')).display"), 'none');
 });

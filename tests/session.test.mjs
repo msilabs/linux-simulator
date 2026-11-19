@@ -154,7 +154,7 @@ function jsFiles(dir) {
 
 test('browser: all files load in Alo order without require, and a session runs', () => {
     const root = new URL('..', import.meta.url).pathname;
-    const files = jsFiles(join(root, 'global')).filter((f) => !f.endsWith('90-app.js'))
+    const files = jsFiles(join(root, 'global')).filter((f) => !/\/[89]\d-[^/]*\.js$/.test(f))
         .sort((a, b) => (a.slice(root.length) < b.slice(root.length) ? -1 : 1));
     const sandbox = { console };
     sandbox.self = sandbox;
