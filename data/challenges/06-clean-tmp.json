@@ -29,7 +29,7 @@
             "label": "গানের ফাইল ঠিক আছে"
         }
     ],
-    "hint": "আগে `ls ~/downloads/*.tmp` দিয়ে দেখে নিন কী কী মিলছে, তারপর একই আকার দিয়ে `rm`।",
+    "hint": "আগে `ls ~/downloads/*.tmp` দিয়ে দেখে নিন কী কী মিলছে, তারপর একই pattern দিয়ে `rm`।",
     "solution": "rm ~/downloads/*.tmp",
     "alternatives": [
         "cd downloads && rm cache.tmp part1.tmp part2.tmp"
