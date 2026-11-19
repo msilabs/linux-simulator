@@ -9,7 +9,6 @@
     var Text = isNode ? require('./06-text.js') : root.LinuxText;
     var Seed = isNode ? require('./03-seed.js') : root.LinuxSeed;
     var Shell = isNode ? require('./20-shell.js') : root.LinuxShell;
-    var Missions = isNode ? require('./25-missions.js') : root.LinuxMissions;
 
     // তালিকা এর চেয়ে লম্বা হলে ছোট করা হয়; ছোট করার পর KEEP_LOG সংখ্যক command (অর্থাৎ এত ধাপের undo) থাকে
     var MAX_LOG = 200;
@@ -32,7 +31,7 @@
             past: [],
             lines: [{ id: 1, kind: 'welcome', text: welcome === undefined ? Text.welcome : welcome }],
             history: [],
-            step: 0,
+            last: null,
             status: 0,
             running: null,
             editing: null,
@@ -71,23 +70,14 @@
         if (result.stderr) lines.push(line('error', trimEnd(result.stderr)));
         if (result.explain) lines.push(line(result.explainError ? 'explain-error' : 'explain', result.explain));
 
-        var step = Missions.nextStep(s.step, { prev: s.state, next: result.state, command: command, ok: result.code === 0, stdout: result.stdout, stderr: result.stderr, errno: result.errno, waiting: !!result.waiting });
-        var before = Missions.missionAt(s.step).index;
-        var after = Missions.missionAt(step).index;
-        if (after > before) {
-            var finished = Missions.MISSIONS[before];
-            var upcoming = Missions.MISSIONS[after];
-            lines.push(line('welcome', Text.missionDone(finished.title, after + 1, upcoming ? upcoming.title : null)));
-        }
-
         var changed = stateChanged(s.state, result.state);
         return compact(Object.assign({}, s, {
             state: result.state,
             log: changed ? s.log.concat([command]) : s.log,
-            past: changed ? s.past.concat([{ state: s.state, step: s.step, command: command }]) : s.past,
+            past: changed ? s.past.concat([{ state: s.state, command: command }]) : s.past,
             lines: lines.slice(-MAX_LINES),
             history: history,
-            step: step,
+            last: { command: command, ok: result.code === 0, code: result.code, stdout: result.stdout || '', stderr: result.stderr || '' },
             status: result.code,
             running: result.waiting ? { command: command, name: result.waiting.name } : null,
             editing: result.edit || null,
@@ -99,17 +89,12 @@
     function stopRunning(s) {
         if (!s.running) return s;
         var id = s.nextId;
-        var step = Missions.nextStep(s.step, { prev: s.state, next: s.state, command: s.running.command, ok: true, stdout: '', stderr: '', waiting: false, stopped: true });
         var lines = s.lines.concat([
             { id: id, kind: 'output', text: '^C' },
             { id: id + 1, kind: 'explain', text: Text.stopped }
         ]);
-        var finished = Missions.missionAt(s.step).index;
-        if (Missions.missionAt(step).index > finished) {
-            var upcoming = Missions.MISSIONS[Missions.missionAt(step).index];
-            lines.push({ id: id + 2, kind: 'welcome', text: Text.missionDone(Missions.MISSIONS[finished].title, finished + 2, upcoming ? upcoming.title : null) });
-        }
-        return Object.assign({}, s, { running: null, step: step, status: 130, lines: lines.slice(-MAX_LINES), nextId: id + (lines.length - s.lines.length) });
+        var last = { command: s.running.command, ok: false, code: 130, stdout: '', stderr: '', stopped: true };
+        return Object.assign({}, s, { running: null, last: last, status: 130, lines: lines.slice(-MAX_LINES), nextId: id + 2 });
     }
 
     // editor থেকে সেভ। ভুল হলে editor খোলা থাকে আর error ফেরত আসে।
@@ -122,7 +107,7 @@
         var session = Object.assign({}, s, {
             state: written.state,
             log: s.log.concat([{ type: 'write', path: path, content: content, label: label }]),
-            past: s.past.concat([{ state: s.state, step: s.step, command: label }]),
+            past: s.past.concat([{ state: s.state, command: label }]),
             lines: s.lines.concat([{ id: id, kind: 'welcome', text: Text.fileSaved(path) }]).slice(-MAX_LINES),
             editing: null,
             nextId: id + 1
@@ -153,7 +138,7 @@
         var note = { id: s.nextId, kind: 'welcome', text: Text.undoDone(last.command) };
         return Object.assign({}, s, {
             state: last.state,
-            step: last.step,
+            last: null,
             log: s.log.slice(0, -1),
             past: s.past.slice(0, -1),
             running: null,
@@ -166,7 +151,6 @@
     // ভিত্তি থেকে command-গুলো আবার চালিয়ে state আর undo-র ইতিহাস বানায়
     function replay(base, log) {
         var state = base;
-        var step = 0;
         var status = 0;
         var kept = [];
         var past = [];
@@ -174,7 +158,7 @@
             if (typeof command === 'object') {
                 var written = Shell.writeFile(state, command.path, command.content);
                 if (written.error) return;
-                past.push({ state: state, step: step, command: command.label });
+                past.push({ state: state, command: command.label });
                 kept.push(command);
                 state = written.state;
                 return;
@@ -182,8 +166,7 @@
             var result = Shell.run(state, command, { history: [], status: status });
             status = result.code;
             if (!stateChanged(state, result.state)) return;
-            past.push({ state: state, step: step, command: command });
-            step = Missions.nextStep(step, { prev: state, next: result.state, command: command, ok: result.code === 0, stdout: result.stdout, stderr: result.stderr, errno: result.errno, waiting: !!result.waiting });
+            past.push({ state: state, command: command });
             kept.push(command);
             state = result.state;
         });

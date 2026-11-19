@@ -93,6 +93,24 @@ test('storage: save and load give back the same session', () => {
     assert.ok(next.lines[next.lines.length - 1].id > s.lines[s.lines.length - 1].id);
 });
 
+test('storage: an old save with mission steps still loads', () => {
+    const live = play(['mkdir a', 'cd a', 'touch x']);
+    const old = JSON.parse(Storage.serialize(live));
+    old.step = 7;
+    old.steps = [0, 1, 2];
+    const loaded = Storage.parse(JSON.stringify(old));
+    assert.equal(loaded.status, 'ok');
+    assert.equal(JSON.stringify(loaded.session.state), JSON.stringify(live.state));
+    assert.equal(loaded.session.step, undefined);
+    assert.equal(Session.undo(loaded.session).state.cwd, '/home/dev/a');
+});
+
+test('session: last keeps the result of the latest command', () => {
+    const s = play(['ls nope', 'pwd']);
+    assert.deepEqual(s.last, { command: 'pwd', ok: true, code: 0, stdout: '/home/dev\n', stderr: '' });
+    assert.equal(play(['ls nope']).last.ok, false);
+});
+
 test('storage: empty, broken and tampered saves are handled', () => {
     assert.equal(Storage.parse(null).status, 'empty');
     assert.equal(Storage.parse('{nope').status, 'corrupt');

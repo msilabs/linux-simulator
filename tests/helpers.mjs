@@ -10,7 +10,7 @@ export const Expand = require('../global/05-expand.js');
 export const Helpers = require('../global/08-helpers.js');
 export const Shell = require('../global/20-shell.js');
 export const Complete = require('../global/22-complete.js');
-export const Missions = require('../global/25-missions.js');
+export const Challenge = require('../global/31-challenge.js');
 export const Session = require('../global/30-session.js');
 export const Storage = require('../global/32-storage.js');
 

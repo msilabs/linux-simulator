@@ -1,6 +1,6 @@
 // browser-এর localStorage-এ session রাখা।
 // private window, ব্লক করা বা ভরা storage-এ exception আসতে পারে, তাই প্রতিটা read/write try/catch-এ।
-// সেভ হয়: ভিত্তি-state, command-এর তালিকা, পর্দার লাইন, history আর mission-এর ধাপ।
+// সেভ হয়: ভিত্তি-state, command-এর তালিকা, পর্দার লাইন আর history।
 (function (root) {
     var isNode = typeof module !== 'undefined' && module.exports;
     var Fs = isNode ? require('./02-fs.js') : root.LinuxFs;
@@ -54,9 +54,7 @@
             base: s.base,
             log: s.log,
             lines: s.lines,
-            history: s.history,
-            step: s.step,
-            steps: s.past.map(function (p) { return p.step; })
+            history: s.history
         });
     }
 
@@ -68,19 +66,13 @@
             if (!isObject(d) || d.v !== 1) return { status: 'corrupt' };
             var lines = Session.isValidLines(d.lines) ? d.lines.slice(-Session.MAX_LINES) : null;
             var history = Session.isStringArray(d.history) ? d.history.slice(-Session.MAX_HISTORY) : null;
-            var step = typeof d.step === 'number' && d.step >= 0 ? d.step : 0;
             var base = rebuildState(d.base);
             if (!lines || !history || !base || !Session.isValidLog(d.log)) return { status: 'corrupt' };
 
+            // পুরোনো সেভে mission-এর `step` আর `steps` থাকতে পারে, সেগুলো উপেক্ষা করা হয়
             var replayed = Session.replay(base, d.log);
-            var steps = d.steps;
-            var stepsOk = Array.isArray(steps) && steps.length === d.log.length && replayed.log.length === d.log.length &&
-                steps.every(function (n) { return Number.isInteger(n) && n >= 0; });
-            if (stepsOk) {
-                replayed = { state: replayed.state, log: replayed.log, past: replayed.past.map(function (p, i) { return { state: p.state, step: steps[i], command: p.command }; }) };
-            }
             var nextId = lines.reduce(function (m, l) { return Math.max(m, l.id); }, 0) + 1;
-            var session = Object.assign(Session.freshSession(), replayed, { base: base, lines: lines, history: history, step: step, nextId: nextId });
+            var session = Object.assign(Session.freshSession(), replayed, { base: base, lines: lines, history: history, nextId: nextId });
             return { status: 'ok', session: session };
         } catch (e) {
             return { status: 'corrupt' };

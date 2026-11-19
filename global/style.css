@@ -1,4 +1,4 @@
-/* রঙের টোকেন, পেজের কাঠামো, তারপর terminal, file tree, mission */
+/* রঙের টোকেন, পেজের কাঠামো, তারপর terminal আর file tree */
 :root {
   --bg: #f4f7fa;
   --surface: #ffffff;
@@ -162,42 +162,3 @@ code, pre { font-family: var(--f-code); font-variant-ligatures: none; }
 }
 @media (prefers-reduced-motion: reduce) { .tree-row { transition: none; } }
 
-/* mission */
-.mission { display: grid; gap: 10px; padding: 16px; }
-.mission-top { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
-.mission-title { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
-.mission-title h2 { margin: 0; font-family: var(--f-display); font-size: 22px; font-weight: 800; line-height: 1.2; }
-.mission-no { padding: 2px 10px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); font: 700 13px var(--f-code); }
-.mission-progress { display: flex; gap: 10px; align-items: center; color: var(--muted); font-size: 13px; font-weight: 600; }
-.mission-progress .bar { width: 120px; height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
-.mission-progress .bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--cursor)); transition: width .4s; }
-.mission-goal { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.7; }
-.stages { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
-.stage { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; color: var(--muted); }
-.stage .mark { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--surface-2); font: 700 12px var(--f-body); }
-.stage .label { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-.stage .label code, .mission-hint code { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); color: var(--ink); font-family: var(--f-code); font-size: .9em; }
-.stage.done { opacity: .75; }
-.stage.done .mark { background: var(--ok); color: #fff; }
-.stage.done .label { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--muted) 50%, transparent); }
-.stage.current { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--surface)); color: var(--ink); }
-.stage.current .mark { background: var(--accent); color: #06161c; }
-.stage-run { flex: none; }
-.mission-hint { margin: 0; padding: 8px 12px; border-radius: 10px; background: color-mix(in srgb, var(--cursor) 14%, transparent); color: var(--ink); font-size: 14px; line-height: 1.7; }
-.mission-all summary { color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer; }
-.mission-all ol { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 8px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--muted); }
-.mission-all li.done { color: var(--ok); }
-.mission-all li.current { color: var(--accent); font-weight: 700; }
-@media (max-width: 640px) {
-  .stage { flex-wrap: wrap; }
-  .stage .label { flex: 1 1 100%; order: 5; }
-  .stage-run { margin-left: auto; order: 4; }
-}
-@media (prefers-reduced-motion: reduce) { .mission-progress .bar i { transition: none; } }
-
-.current-stage .stage { padding: 10px 12px; }
-.current-stage .of { flex: none; color: var(--muted); font: 600 12px var(--f-body); }
-.current-stage .stage .label { font-size: 15.5px; }
-.mission-more { display: flex; flex-wrap: wrap; gap: 6px 22px; }
-.mission-more details { flex: 1 1 280px; }
-.mission-more .stages { margin-top: 8px; }

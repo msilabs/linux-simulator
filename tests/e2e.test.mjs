@@ -98,10 +98,9 @@ after(async () => {
     try { if (profile) rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }); } catch { /* অস্থায়ী ফোল্ডার, না মুছলেও চলে */ }
 });
 
-test('e2e: the page loads, shows the welcome note and mission 1, with no script errors', { skip }, async () => {
+test('e2e: the page loads and shows the welcome note, with no script errors', { skip }, async () => {
     await open();
     assert.match(await screen(), /Linux Simulator-এ স্বাগতম/);
-    assert.equal(await js("document.getElementById('mission-no').textContent"), 'Mission ১');
     assert.equal(await js("document.getElementById('term-prompt').textContent"), 'dev@laptop:~$');
     assert.deepEqual(problems, []);
 });
@@ -134,18 +133,6 @@ test('e2e: history with the arrow keys and Tab completion', { skip }, async () =
     await js("document.getElementById('term-input').value = 'cd pro'");
     await key('Tab');
     assert.equal(await js("document.getElementById('term-input').value"), 'cd projects/');
-});
-
-test('e2e: the mission buttons walk through mission 1 and the next one opens', { skip }, async () => {
-    await open();
-    for (let i = 0; i < 5; i++) {
-        await js("document.querySelector('.stage.current .stage-run').click()");
-        await sleep(60);
-    }
-    await waitFor("document.getElementById('mission-no').textContent === 'Mission ২'", 'mission 2');
-    assert.equal(await js("document.getElementById('mission-count').textContent"), '২/১১');
-    assert.match(await screen(), /শেষ।? এবার mission ২/);
-    assert.deepEqual(problems, []);
 });
 
 test('e2e: progress stays after a reload, and Reset clears it', { skip }, async () => {
