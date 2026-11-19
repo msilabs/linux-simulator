@@ -10,7 +10,7 @@
             "label": "আউটপুটে শুধু সঠিক সংখ্যা"
         }
     ],
-    "hint": "`grep`-এর একটা option লাইন না দেখিয়ে সংখ্যা দেয়। অথবা `grep`-এর ফল pipe দিয়ে `wc -l`-এ পাঠান। `\" 404 \"` দুই পাশে space দিয়ে খুঁজলে শুধু status মেলে।",
+    "hint": "`grep`-এর একটা option লাইন না দেখিয়ে সংখ্যা দেয়। অথবা `grep`-এর আউটপুট pipe দিয়ে `wc -l`-এ পাঠান। `\" 404 \"` দুই পাশে space দিয়ে খুঁজলে শুধু status মেলে।",
     "solution": "grep -c ' 404 ' /var/log/nginx/access.log",
     "alternatives": [
         "grep ' 404 ' /var/log/nginx/access.log | wc -l",

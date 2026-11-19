@@ -1,10 +1,10 @@
 ---
 title: pipe দিয়ে জোড়া: |, sort, uniq, cut
 order: 11
-summary: এক command-এর ফলকে পরের command-এর ইনপুট বানানো।
+summary: এক command-এর আউটপুটকে পরের command-এর ইনপুট বানানো।
 ---
 
-`|` (pipe) বাঁ পাশের command-এর ফল সরাসরি ডান পাশের command-এ পাঠায়, মাঝে কোনো ফাইল লাগে না। ছোট ছোট command জুড়ে বড় কাজ করা Linux-এর মূল ধারণা।
+`|` (pipe) বাঁ পাশের command-এর আউটপুট সরাসরি ডান পাশের command-এ পাঠায়, মাঝে কোনো ফাইল লাগে না। ছোট ছোট command জুড়ে বড় কাজ করা Linux-এর মূল ধারণা।
 
 ```terminal
 $ grep ERROR /var/log/nginx/error.log | wc -l
