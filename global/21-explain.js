@@ -193,15 +193,15 @@
             return code('chmod') + ' ফাইলের অনুমতি (পড়া, লেখা, চালানো) বদলায়। ' + chmodText(mode) + (addsExecute(mode) ? ' `ls -l` দিলে এখন নামের জায়গায় `x` দেখা যাবে, আর script হলে `./নাম` দিয়ে চালানো যাবে।' : '');
         },
         chown: function (i) {
-            return code('chown') + ' ফাইলের মালিক বদলায়। ' + code(operandsOf(i.args)[0] || '') + ' মানে ' + code('মালিক:দল') + '। মালিক বদলাতে পারে শুধু root, তাই সাধারণত ' + code('sudo chown ...') + ' লাগে। ' + code('-R') + ' ভেতরের সবকিছুর মালিকও বদলায়।';
+            return code('chown') + ' ফাইলের মালিক বদলায়। ' + code(operandsOf(i.args)[0] || '') + ' মানে ' + code('মালিক:দল') + '। মালিক বদলাতে পারে শুধু root। ' + (i.underSudo ? 'এখানে sudo দিয়েছেন বলে কাজটা চলেছে। ' : 'তাই সাধারণত ' + code('sudo chown ...') + ' লাগে। ') + code('-R') + ' ভেতরের সবকিছুর মালিকও বদলায়।';
         },
         sudo: function (i) {
             var inner = i.args[0];
             var fn = BY_NAME[inner];
-            var innerText = fn ? ' ' + fn({ name: inner, args: i.args.slice(1), before: i.before, after: i.after, redirected: false }) : '';
+            var innerText = fn ? ' ' + fn({ name: inner, args: i.args.slice(1), before: i.before, after: i.after, redirected: false, underSudo: true }) : '';
             return code('sudo') + ' একটা command root হিসেবে চালায়। root সবকিছু পারে আর কেউ তাকে আটকায় না, তাই ভুল command-ও চলে যায়। না বুঝে sudo দেবেন না।' + innerText;
         },
-        whoami: function (i) { return code('whoami') + ' বলে এখন আপনি কোন user। ' + code('sudo whoami') + ' দিলে ' + code('root') + ' দেখাবে, কারণ sudo কাজটা root হিসেবে করে।'; },
+        whoami: function (i) { if (i.underSudo) return code('whoami') + ' দেখায় কোন user হিসেবে command চলছে। sudo-র ভেতরে চলেছে বলে এখানে ' + code('root') + ' দেখাল।'; return code('whoami') + ' দেখায় এখন আপনি কোন user হিসেবে আছেন। ' + code('sudo whoami') + ' দিলে ' + code('root') + ' দেখাবে, কারণ sudo command-টা root হিসেবে চালায়।'; },
         id: function () { return code('id') + ' আপনার user আর group-এর পরিচয় দেখায়। ' + code('sudo') + ' group-এ থাকলে আপনি ' + code('sudo') + ' ব্যবহার করতে পারেন।'; },
         ps: function () {
             return code('ps') + ' চলতে থাকা process-এর তালিকা দেখায়। কিছু না দিলে শুধু এই terminal-এর process। ' + code('ps aux') + ' সবার সব process দেখায়। ' + code('PID') + ' হলো process-এর নম্বর, ' + code('kill') + ' এই নম্বর দিয়েই কাজ করে। কে বেশি CPU খাচ্ছে বুঝতে ' + code('%CPU') + ' কলাম দেখুন।';
