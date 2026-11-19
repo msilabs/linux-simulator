@@ -128,7 +128,7 @@ code, pre { font-family: var(--f-code); font-variant-ligatures: none; }
 
 /* terminal */
 .term-card { display: grid; gap: 12px; padding: 14px; }
-.term { background: var(--term-bg); color: var(--term-ink); border-radius: 14px; padding: 14px; height: min(62vh, 560px); min-height: 320px; overflow-y: auto; overscroll-behavior: contain; font-family: var(--f-code); font-size: 14px; line-height: 1.55; cursor: text; }
+.term { background: var(--term-bg); color: var(--term-ink); border-radius: 14px; padding: 14px; height: min(62vh, 560px); min-height: 320px; overflow-y: auto; font-family: var(--f-code); font-size: 14px; line-height: 1.55; cursor: text; }
 .term-out .line { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-family: inherit; }
 /* ls -l-র মতো সারি করা আউটপুট ভাঙার বদলে আড়াআড়ি scroll হয় */
 .term-out pre.line.output { white-space: pre; overflow-x: auto; }
